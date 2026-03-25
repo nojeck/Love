@@ -1,0 +1,10 @@
+{
+  "device_id": "editor_pc",
+  "metrics": {
+    "f0_mean": 259.19,
+    "jitter": 6.8063,
+    "shimmer": 25.78,
+    "hnr_db": 20.0,
+    "pitch_dev_percent": 32.4823
+  }
+}

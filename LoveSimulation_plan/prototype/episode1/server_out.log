@@ -1,0 +1,221 @@
+ * Serving Flask app 'server'
+ * Debug mode: off
+
+=== ServerControlWindow started at 2026-03-18 16:01:21 ===
+
+=== ServerControlWindow started at 2026-03-18 16:06:45 ===
+Process exited (code 106)
+
+=== ServerControlWindow started at 2026-03-18 16:06:49 ===
+Process exited (code 106)
+
+=== ServerControlWindow started at 2026-03-18 16:06:52 ===
+Process exited (code 106)
+
+=== ServerControlWindow started at 2026-03-18 16:12:09 ===
+ * Serving Flask app 'server'
+ * Debug mode: off
+
+=== ServerControlWindow started at 2026-03-18 16:12:23 ===
+
+=== ServerControlWindow started at 2026-03-18 16:21:04 ===
+
+=== ServerControlWindow started at 2026-03-20 13:44:59 ===
+
+=== ServerControlWindow started at 2026-03-20 13:54:28 ===
+
+=== ServerControlWindow started at 2026-03-20 14:05:04 ===
+
+=== ServerControlWindow started at 2026-03-20 14:05:29 ===
+Process exited (code 1)
+
+=== ServerControlWindow started at 2026-03-20 14:16:38 ===
+
+=== ServerControlWindow started at 2026-03-20 14:17:14 ===
+
+=== ServerControlWindow started at 2026-03-20 14:35:05 ===
+
+=== ServerControlWindow started at 2026-03-25 08:06:15 ===
+
+=== ServerControlWindow started at 2026-03-25 08:59:27 ===
+Process exited (code 1)
+
+=== ServerControlWindow started at 2026-03-25 09:03:10 ===
+ * Serving Flask app 'server'
+ * Debug mode: off
+
+=== ServerControlWindow started at 2026-03-25 09:03:32 ===
+
+=== ServerControlWindow started at 2026-03-25 09:03:49 ===
+
+=== ServerControlWindow started at 2026-03-25 09:15:41 ===
+
+=== ServerControlWindow started at 2026-03-25 09:29:12 ===
+
+=== ServerControlWindow started at 2026-03-25 09:42:49 ===
+
+=== ServerControlWindow started at 2026-03-25 09:54:08 ===
+
+=== ServerControlWindow started at 2026-03-25 10:11:44 ===
+
+=== ServerControlWindow started at 2026-03-25 10:36:16 ===
+
+=== ServerControlWindow started at 2026-03-25 10:44:22 ===
+
+=== ServerControlWindow started at 2026-03-25 10:54:44 ===
+
+=== ServerControlWindow started at 2026-03-25 11:24:48 ===
+
+=== ServerControlWindow started at 2026-03-25 12:00:52 ===
+
+=== ServerControlWindow started at 2026-03-25 13:09:07 ===
+
+=== ServerControlWindow started at 2026-03-25 13:16:03 ===
+
+=== ServerControlWindow started at 2026-03-25 13:26:58 ===
+ * Serving Flask app 'server'
+ * Debug mode: off
+
+=== ServerControlWindow started at 2026-03-25 13:37:20 ===
+Warning: Failed to initialize LLM provider 'claude': 'cp949' codec can't encode character '\u2717' in position 0: illegal multibyte sequence
+ * Serving Flask app 'server'
+ * Debug mode: off
+Warning: Failed to initialize LLM provider 'claude': 'cp949' codec can't encode character '\u2717' in position 0: illegal multibyte sequence
+ * Serving Flask app 'server'
+ * Debug mode: off
+[WARN] Claude (Anthropic) not available (API key missing?)
+Warning: LLM provider 'claude' not available, using fallback
+ * Serving Flask app 'server'
+ * Debug mode: off
+
+=== ServerControlWindow started at 2026-03-25 13:50:46 ===
+[INFO] Config file not found: llm_config.json
+[INFO] Using default configuration (llm_provider='claude')
+[INFO] Initializing NPC generator with provider: claude
+[INFO] Config file not found: llm_config.json
+[INFO] Using default configuration (llm_provider='claude')
+[WARN] Claude (Anthropic) not available (API key missing?)
+Warning: LLM provider 'claude' not available, using fallback
+[OK] NPC generator initialized: fallback
+ * Serving Flask app 'server'
+ * Debug mode: off
+
+=== ServerControlWindow started at 2026-03-25 13:51:55 ===
+
+=== ServerControlWindow started at 2026-03-25 14:02:43 ===
+[INFO] Config file not found: llm_config.json
+[INFO] Using default configuration (llm_provider='claude')
+[INFO] Initializing NPC generator with provider: claude
+[INFO] Config file not found: llm_config.json
+[INFO] Using default configuration (llm_provider='claude')
+[WARN] Claude (Anthropic) not available (API key missing?)
+Warning: LLM provider 'claude' not available, using fallback
+[OK] NPC generator initialized: fallback
+ * Serving Flask app 'server'
+ * Debug mode: off
+
+=== ServerControlWindow started at 2026-03-25 14:07:35 ===
+[INFO] Config file not found: llm_config.json
+[INFO] Using default configuration (llm_provider='claude')
+[INFO] Initializing NPC generator with provider: claude
+[INFO] Config file not found: llm_config.json
+[INFO] Using default configuration (llm_provider='claude')
+[WARN] Claude (Anthropic) not available (API key missing?)
+Warning: LLM provider 'claude' not available, using fallback
+[OK] NPC generator initialized: fallback
+ * Serving Flask app 'server'
+ * Debug mode: off
+[INFO] Config file not found, will create at: C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[INFO] Config file not found: C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[INFO] Using default configuration (llm_provider='claude')
+[INFO] Initializing NPC generator with provider: claude
+[INFO] Config file not found, will create at: C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[INFO] Config file not found: C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[INFO] Using default configuration (llm_provider='claude')
+[WARN] Claude (Anthropic) not available (API key missing?)
+Warning: LLM provider 'claude' not available, using fallback
+[OK] NPC generator initialized: fallback
+ * Serving Flask app 'server'
+ * Debug mode: off
+[OK] Found config at: C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[OK] Loaded config from C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[INFO] Initializing NPC generator with provider: claude
+[OK] Found config at: C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[OK] Loaded config from C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[WARN] Claude (Anthropic) not available (API key missing?)
+Warning: LLM provider 'claude' not available, using fallback
+[OK] NPC generator initialized: fallback
+ * Serving Flask app 'server'
+ * Debug mode: off
+
+=== ServerControlWindow started at 2026-03-25 14:29:28 ===
+[OK] Found config at: C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[OK] Loaded config from C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[INFO] Initializing NPC generator with provider: claude
+[OK] Found config at: C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[OK] Loaded config from C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[WARN] Claude (Anthropic) not available (API key missing?)
+Warning: LLM provider 'claude' not available, using fallback
+[OK] NPC generator initialized: fallback
+ * Serving Flask app 'server'
+ * Debug mode: off
+
+=== ServerControlWindow started at 2026-03-25 14:34:43 ===
+[OK] Found config at: C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[OK] Loaded config from C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[INFO] Initializing NPC generator with provider: claude
+[OK] Found config at: C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[OK] Loaded config from C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[WARN] Claude (Anthropic) not available (API key missing?)
+Warning: LLM provider 'claude' not available, using fallback
+[OK] NPC generator initialized: fallback
+ * Serving Flask app 'server'
+ * Debug mode: off
+
+=== ServerControlWindow started at 2026-03-25 14:35:13 ===
+
+=== ServerControlWindow started at 2026-03-25 14:45:20 ===
+
+=== ServerControlWindow started at 2026-03-25 15:15:27 ===
+
+=== ServerControlWindow started at 2026-03-25 15:23:10 ===
+
+=== ServerControlWindow started at 2026-03-25 15:27:48 ===
+[OK] Found config at: C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[OK] Loaded config from C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[INFO] Initializing NPC generator with provider: gemini
+[OK] Found config at: C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[OK] Loaded config from C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[OK] Found config at: C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[OK] Loaded config from C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[OK] Loaded gemini API key from config
+[OK] LLM Provider: Google Gemini
+[OK] NPC generator initialized: Google Gemini
+ * Serving Flask app 'server'
+ * Debug mode: off
+
+=== ServerControlWindow started at 2026-03-25 15:28:48 ===
+
+=== ServerControlWindow started at 2026-03-25 15:43:31 ===
+[OK] Found config at: C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[OK] Loaded config from C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[INFO] Initializing NPC generator with provider: gemini
+[OK] Found config at: C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[OK] Loaded config from C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[OK] Found config at: C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[OK] Loaded config from C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[OK] Loaded gemini API key from config
+[OK] LLM Provider: Google Gemini
+[OK] NPC generator initialized: Google Gemini
+ * Serving Flask app 'server'
+ * Debug mode: off
+
+=== ServerControlWindow started at 2026-03-25 15:43:55 ===
+
+=== ServerControlWindow started at 2026-03-25 15:49:41 ===
+
+=== ServerControlWindow started at 2026-03-25 16:00:38 ===
+
+=== ServerControlWindow started at 2026-03-25 16:19:03 ===
+
+=== ServerControlWindow started at 2026-03-25 16:37:16 ===

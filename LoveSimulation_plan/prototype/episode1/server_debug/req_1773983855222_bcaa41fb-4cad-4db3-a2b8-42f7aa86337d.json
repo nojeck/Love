@@ -1,0 +1,44 @@
+{
+  "req_uuid": "bcaa41fb-4cad-4db3-a2b8-42f7aa86337d",
+  "client_req_id": "cc0f78203aeb45c78ca69630960d85ed",
+  "timestamp": 1773983855222,
+  "remote": "127.0.0.1",
+  "content_length": 85209,
+  "headers": {
+    "Host": "127.0.0.1:5000",
+    "User-Agent": "UnityPlayer/6000.3.9f1 (UnityWebRequest/1.0, libcurl/8.10.1-DEV)",
+    "Accept": "*/*",
+    "Accept-Encoding": "deflate, gzip",
+    "Content-Type": "multipart/form-data; boundary=\"gKWKMXr2VIaOlyLrA3ZWDpBOlOPGAVDGNSqbpYpx\"",
+    "X-Unity-Version": "6000.3.9f1",
+    "Content-Length": "85209"
+  },
+  "form_keys": [
+    "client_req_id"
+  ],
+  "files_keys": [
+    "file"
+  ],
+  "saved_path": "C:\\Users\\555a\\AppData\\Local\\Temp\\tmpbva5qvlt.wav",
+  "saved_size": 84844,
+  "sha256": "f08d4c7fb0a2eef93c3feea2eef0382da3e7c4f59f62e32d93ae2d33c3451c80",
+  "deepgram_request_id": null,
+  "deepgram_log_file": null,
+  "deepgram_status": "no_key",
+  "deepgram_error": "DEEPGRAM_API_KEY not set",
+  "deepgram_attempt_count": 0,
+  "deepgram_confidence": null,
+  "deepgram_http_status": null,
+  "transcript_len": 0,
+  "response_summary": {
+    "req_uuid": "bcaa41fb-4cad-4db3-a2b8-42f7aa86337d",
+    "client_req_id": "cc0f78203aeb45c78ca69630960d85ed",
+    "deepgram_status": "no_key",
+    "deepgram_called": false,
+    "deepgram_request_id": null,
+    "deepgram_log_file": null,
+    "transcript_source": "none",
+    "transcript_is_empty": true,
+    "latency_ms": 29698
+  }
+}

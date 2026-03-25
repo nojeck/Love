@@ -1,0 +1,100 @@
+{
+  "metadata": {
+    "transaction_key": "deprecated",
+    "request_id": "93c32f40-25ec-482a-bef3-a26412e4a985",
+    "sha256": "d01c495548f02f434da75b03cfdf8be4110845ae31d19920caceec986b7a4d9e",
+    "created": "2026-03-18T07:21:28.656Z",
+    "duration": 6.9,
+    "channels": 1,
+    "models": [
+      "3c79c76c-d186-482b-89d8-8b005a5e5917"
+    ],
+    "model_info": {
+      "3c79c76c-d186-482b-89d8-8b005a5e5917": {
+        "name": "general-nova-3",
+        "version": "2025-09-24.25124",
+        "arch": "nova-3"
+      }
+    }
+  },
+  "results": {
+    "channels": [
+      {
+        "alternatives": [
+          {
+            "transcript": "나를사랑하긴했니웃기지마그런말은여자가듣고싶어할때했어야지",
+            "confidence": 0.9798177,
+            "words": [
+              {
+                "word": "나를",
+                "start": 0.56,
+                "end": 0.96,
+                "confidence": 0.99609375
+              },
+              {
+                "word": "사랑하긴",
+                "start": 0.96,
+                "end": 1.5999999,
+                "confidence": 0.9790039
+              },
+              {
+                "word": "했니",
+                "start": 1.5999999,
+                "end": 2.24,
+                "confidence": 0.9798177
+              },
+              {
+                "word": "웃기지마",
+                "start": 2.24,
+                "end": 3.1999998,
+                "confidence": 0.8477783
+              },
+              {
+                "word": "그런",
+                "start": 3.1999998,
+                "end": 3.52,
+                "confidence": 0.9873047
+              },
+              {
+                "word": "말은",
+                "start": 3.52,
+                "end": 3.84,
+                "confidence": 0.98291016
+              },
+              {
+                "word": "여자가",
+                "start": 3.84,
+                "end": 4.24,
+                "confidence": 0.9980469
+              },
+              {
+                "word": "듣고",
+                "start": 4.24,
+                "end": 4.64,
+                "confidence": 1.0
+              },
+              {
+                "word": "싶어할",
+                "start": 4.64,
+                "end": 5.2,
+                "confidence": 0.83325195
+              },
+              {
+                "word": "때",
+                "start": 5.2,
+                "end": 5.2799997,
+                "confidence": 0.97021484
+              },
+              {
+                "word": "했어야지",
+                "start": 5.2799997,
+                "end": 9.04,
+                "confidence": 0.904541
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

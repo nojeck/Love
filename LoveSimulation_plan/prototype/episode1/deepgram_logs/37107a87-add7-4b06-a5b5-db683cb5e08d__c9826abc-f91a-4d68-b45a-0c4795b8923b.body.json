@@ -1,0 +1,70 @@
+{
+  "metadata": {
+    "transaction_key": "deprecated",
+    "request_id": "c9826abc-f91a-4d68-b45a-0c4795b8923b",
+    "sha256": "7ea4f4bbfd7b5fe4b7636b7e702de96f47f4c90b62b43dda74b31318894c651f",
+    "created": "2026-03-25T01:12:29.200Z",
+    "duration": 5.27,
+    "channels": 1,
+    "models": [
+      "3c79c76c-d186-482b-89d8-8b005a5e5917"
+    ],
+    "model_info": {
+      "3c79c76c-d186-482b-89d8-8b005a5e5917": {
+        "name": "general-nova-3",
+        "version": "2025-09-24.25124",
+        "arch": "nova-3"
+      }
+    }
+  },
+  "results": {
+    "channels": [
+      {
+        "alternatives": [
+          {
+            "transcript": "미안해상처받았어내가더잘해줄게사랑해",
+            "confidence": 0.9892578,
+            "words": [
+              {
+                "word": "미안해",
+                "start": 0.79999995,
+                "end": 1.1999999,
+                "confidence": 0.9941406
+              },
+              {
+                "word": "상처받았어",
+                "start": 1.1999999,
+                "end": 2.3999999,
+                "confidence": 0.6883138
+              },
+              {
+                "word": "내가",
+                "start": 2.3999999,
+                "end": 2.72,
+                "confidence": 0.98828125
+              },
+              {
+                "word": "더",
+                "start": 2.72,
+                "end": 2.8799999,
+                "confidence": 0.9970703
+              },
+              {
+                "word": "잘해줄게",
+                "start": 2.8799999,
+                "end": 3.6799998,
+                "confidence": 0.59554034
+              },
+              {
+                "word": "사랑해",
+                "start": 3.6799998,
+                "end": 5.3599997,
+                "confidence": 0.9892578
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,9 @@
+player_variant,normalized_intent,keyword_match,text_score,audio_modifier,chaos_delta,memory_flag,resulting_branch,sample_feedback
+"귀걸이 보여줄게","earring","yes",0.95,+0.05,0.0,false,success,"귀걸이 언급 + 차분한 목소리 → 성공"
+"살 빠졌어?","insult","yes_insult",0.10,-0.30,0.6,true,fail_insult,"모욕성 발언 → 즉시 분노(헐크)"
+"오늘 날씨 좋지","offtopic","no",0.20,0.00,0.3,false,fail_offtopic,"오프토픽 → 혼돈 누적"
+"모르겠어","unknown","no",0.00,-0.20,0.5,true,fail_silence,"침묵/모름 → 즉시 회귀"
+"머리 잘랐지?","hairstyle","yes",0.85,+0.02,0.0,false,success,"머리스타일 언급 → 성공 가능"
+"새 옷 샀어","clothes","yes",0.88,+0.02,0.0,false,success,"옷 언급 → 성공 가능"
+"농담으로 넘어가기","joke","no",0.30,0.00,0.3,false,fail_offtopic,"농담(오프토픽) → 혼돈 증가"
+"(속삭임, 떨림 심함)","earring_possible","partial",0.60,-0.25,0.0,false,fail_silence,"전달은 됐지만 jitter/shimmer로 진정성 감소"

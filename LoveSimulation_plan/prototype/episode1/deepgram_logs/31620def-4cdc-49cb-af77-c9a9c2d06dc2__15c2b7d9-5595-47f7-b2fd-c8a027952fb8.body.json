@@ -1,0 +1,70 @@
+{
+  "metadata": {
+    "transaction_key": "deprecated",
+    "request_id": "15c2b7d9-5595-47f7-b2fd-c8a027952fb8",
+    "sha256": "ce9b72857f8f686d1839bcd8ab9a0b9d92256c2bf140b62a68ad099d13ad53b5",
+    "created": "2026-03-25T07:37:29.828Z",
+    "duration": 4.41,
+    "channels": 1,
+    "models": [
+      "3c79c76c-d186-482b-89d8-8b005a5e5917"
+    ],
+    "model_info": {
+      "3c79c76c-d186-482b-89d8-8b005a5e5917": {
+        "name": "general-nova-3",
+        "version": "2025-09-24.25124",
+        "arch": "nova-3"
+      }
+    }
+  },
+  "results": {
+    "channels": [
+      {
+        "alternatives": [
+          {
+            "transcript": "아아아가나따라와봐서",
+            "confidence": 0.9090169,
+            "words": [
+              {
+                "word": "아",
+                "start": 1.52,
+                "end": 1.8399999,
+                "confidence": 0.99609375
+              },
+              {
+                "word": "아",
+                "start": 1.8399999,
+                "end": 2.08,
+                "confidence": 0.9223633
+              },
+              {
+                "word": "아",
+                "start": 2.08,
+                "end": 2.24,
+                "confidence": 0.7104492
+              },
+              {
+                "word": "가나",
+                "start": 2.24,
+                "end": 2.6399999,
+                "confidence": 0.9090169
+              },
+              {
+                "word": "따라와",
+                "start": 2.6399999,
+                "end": 3.12,
+                "confidence": 0.689209
+              },
+              {
+                "word": "봐서",
+                "start": 3.12,
+                "end": 4.56,
+                "confidence": 0.41333008
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

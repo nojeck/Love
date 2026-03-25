@@ -1,0 +1,4 @@
+repository "LoveSimulation_sample@jyjn1256@cloud"
+  path "/"
+    br "/main"
+    co "/main"

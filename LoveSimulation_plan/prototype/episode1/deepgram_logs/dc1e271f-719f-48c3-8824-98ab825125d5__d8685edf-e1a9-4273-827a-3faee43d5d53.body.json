@@ -1,0 +1,52 @@
+{
+  "metadata": {
+    "transaction_key": "deprecated",
+    "request_id": "d8685edf-e1a9-4273-827a-3faee43d5d53",
+    "sha256": "0db0d64e4fe3f252fda6cb91bbf486fc824e6f329b7c11478e587e28d0742752",
+    "created": "2026-03-25T06:29:03.700Z",
+    "duration": 3.51,
+    "channels": 1,
+    "models": [
+      "3c79c76c-d186-482b-89d8-8b005a5e5917"
+    ],
+    "model_info": {
+      "3c79c76c-d186-482b-89d8-8b005a5e5917": {
+        "name": "general-nova-3",
+        "version": "2025-09-24.25124",
+        "arch": "nova-3"
+      }
+    }
+  },
+  "results": {
+    "channels": [
+      {
+        "alternatives": [
+          {
+            "transcript": "안녕하세요당신은누구세요",
+            "confidence": 0.91259766,
+            "words": [
+              {
+                "word": "안녕하세요",
+                "start": 0.64,
+                "end": 1.52,
+                "confidence": 0.48632812
+              },
+              {
+                "word": "당신은",
+                "start": 1.68,
+                "end": 2.24,
+                "confidence": 0.98828125
+              },
+              {
+                "word": "누구세요",
+                "start": 2.24,
+                "end": 3.36,
+                "confidence": 0.91259766
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

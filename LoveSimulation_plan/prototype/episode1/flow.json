@@ -1,0 +1,99 @@
+{
+  "episode":"Episode 1 - 달라진 점 찾기의 미궁",
+  "start_node":"n0",
+  "nodes":[
+    {
+      "id":"n0",
+      "speaker":"NPC",
+      "text":"나 오늘 뭐 달라진 거 없어?",
+      "type":"prompt",
+      "next":"n1"
+    },
+    {
+      "id":"n1",
+      "speaker":"SYSTEM",
+      "action":"capture_audio_and_transcribe",
+      "next":"n2"
+    },
+    {
+      "id":"n2",
+      "speaker":"SYSTEM",
+      "action":"analyze_audio_features",
+      "outputs":["jitter","shimmer","pitch_dev","hnr"],
+      "next":"n3"
+    },
+    {
+      "id":"n3",
+      "speaker":"SYSTEM",
+      "action":"retrieve_survey_weights",
+      "description":"RAG 검색으로 텍스트 의도와 키워드의 text_score 산출",
+      "next":"n4"
+    },
+    {
+      "id":"n4",
+      "speaker":"SYSTEM",
+      "action":"compute_authenticity",
+      "params":{"formula":"0.5*text_score + 0.35*audio_score + 0.15*(1 - memory_penalty)"},
+      "branches":["success","fail_insult","fail_offtopic","fail_silence"]
+    },
+
+    {
+      "id":"success",
+      "speaker":"NPC",
+      "condition":"authenticity >= 0.70 and keyword_match == true",
+      "text":"정말 고마워! 알아봐줘서 기뻐.",
+      "effect":{"favor":+15},
+      "next":"end_success"
+    },
+    {
+      "id":"fail_insult",
+      "speaker":"NPC",
+      "condition":"text_contains_insult == true",
+      "text":"뭐? 그럴 수가...",
+      "effect":{"chaos":+0.6},
+      "visual":"transform_hulk",
+      "next":"end_regress"
+    },
+    {
+      "id":"fail_offtopic",
+      "speaker":"NPC",
+      "condition":"keyword_match == false and is_offtopic == true",
+      "text":"...그건 무슨 상관이야?",
+      "effect":{"chaos":+0.3},
+      "next":"check_chaos"
+    },
+    {
+      "id":"check_chaos",
+      "speaker":"SYSTEM",
+      "action":"if chaos >= 1.0 goto hidden_death else goto end_regress",
+      "next_if":"hidden_death",
+      "next_else":"end_regress"
+    },
+    {
+      "id":"hidden_death",
+      "speaker":"NPC",
+      "text":"(기상캐스터 모드) 번개가 내린다...",
+      "effect":{"death_reason":"weather_broadcast"},
+      "next":"end_regress"
+    },
+    {
+      "id":"fail_silence",
+      "speaker":"SYSTEM",
+      "condition":"transcript == '' or transcript == '모름'",
+      "action":"penalize_and_regress",
+      "effect":{"chaos":+0.5},
+      "next":"end_regress"
+    },
+    {
+      "id":"end_success",
+      "speaker":"SYSTEM",
+      "action":"proceed_to_next_scene"
+    },
+    {
+      "id":"end_regress",
+      "speaker":"SYSTEM",
+      "action":"show_feedback_and_reset_loop",
+      "params":{"feedback_template":"Your jitter is {jitter}%, try speaking calmer next time."}
+    }
+  ]
+}

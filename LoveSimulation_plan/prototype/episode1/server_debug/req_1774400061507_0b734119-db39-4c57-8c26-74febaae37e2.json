@@ -1,0 +1,25 @@
+{
+  "req_uuid": "0b734119-db39-4c57-8c26-74febaae37e2",
+  "client_req_id": "de9d36ce4fea4078aa7426e69f99b15b",
+  "timestamp": 1774400061507,
+  "remote": "127.0.0.1",
+  "content_length": 204569,
+  "headers": {
+    "Host": "127.0.0.1:5000",
+    "User-Agent": "UnityPlayer/6000.3.9f1 (UnityWebRequest/1.0, libcurl/8.10.1-DEV)",
+    "Accept": "*/*",
+    "Accept-Encoding": "deflate, gzip",
+    "Content-Type": "multipart/form-data; boundary=\"EfupJDdfSKV7dw8iTfWiS8tEHDbSRMRG7U7cO6QN\"",
+    "X-Unity-Version": "6000.3.9f1",
+    "Content-Length": "204569"
+  },
+  "form_keys": [
+    "client_req_id"
+  ],
+  "files_keys": [
+    "file"
+  ],
+  "saved_path": "C:\\Users\\555a\\AppData\\Local\\Temp\\tmpioac20x1.wav",
+  "saved_size": 204204,
+  "sha256": "c324ec0d89d658e6f7c01b9d0d45fb45b19fdfc160d72c53fb7082f97bf12272"
+}

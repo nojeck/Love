@@ -1,0 +1,301 @@
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://210.179.127.182:5000
+Press CTRL+C to quit
+127.0.0.1 - - [18/Mar/2026 10:50:30] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 11:07:53] "POST /analyze HTTP/1.1" 200 -
+45.142.154.17 - - [18/Mar/2026 12:11:21] code 400, message Bad request syntax ('\xff\x00\x00\x00\x00\x00\x00\x00\x00\x7f\x03\x01NULL\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00')
+45.142.154.17 - - [18/Mar/2026 12:11:21] "\xff\x00\x00\x00\x00\x00\x00\x00\x00\x7f\x03\x01NULL\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" 400 -
+45.142.154.17 - - [18/Mar/2026 12:11:42] code 400, message Bad request syntax ('\xff\x00\x00\x00\x00\x00\x00\x00\x00\x7f\x03\x01NULL\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00')
+45.142.154.17 - - [18/Mar/2026 12:11:42] "\xff\x00\x00\x00\x00\x00\x00\x00\x00\x7f\x03\x01NULL\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" 400 -
+45.142.154.17 - - [18/Mar/2026 12:12:04] code 400, message Bad request syntax ('\xff\x00\x00\x00\x00\x00\x00\x00\x00\x7f\x03\x01NULL\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00')
+45.142.154.17 - - [18/Mar/2026 12:12:04] "\xff\x00\x00\x00\x00\x00\x00\x00\x00\x7f\x03\x01NULL\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" 400 -
+45.142.154.17 - - [18/Mar/2026 12:12:14] "GET / HTTP/1.1" 404 -
+45.142.154.17 - - [18/Mar/2026 12:12:15] "GET / HTTP/1.1" 404 -
+45.142.154.17 - - [18/Mar/2026 12:12:15] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [18/Mar/2026 12:27:16] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 12:31:21] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 12:31:24] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 12:31:26] "POST /calibrate?device_id=editor_pc HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 12:31:27] "POST /analyze HTTP/1.1" 200 -
+127.0.0.1 - - [18/Mar/2026 12:31:42] "POST /analyze HTTP/1.1" 200 -
+64.62.156.80 - - [18/Mar/2026 12:57:53] "GET / HTTP/1.1" 404 -
+64.62.156.93 - - [18/Mar/2026 12:58:24] "GET /favicon.ico HTTP/1.1" 404 -
+198.235.24.41 - - [18/Mar/2026 14:17:12] "GET / HTTP/1.1" 404 -
+167.94.146.52 - - [18/Mar/2026 14:37:23] "GET / HTTP/1.1" 404 -
+167.94.146.52 - - [18/Mar/2026 14:37:28] code 400, message Bad request version ('\xc0\x14\xc0')
+167.94.146.52 - - [18/Mar/2026 14:37:28] "\x16\x03\x01\x00\xee\x01\x00\x00\xea\x03\x03@\xd5\x12[\x08©£B\x04]\xd9\x88F\xac{\x8dP©­\x95M\xc7\x0fv\xff\xd4\xd1\xed\xa0K*?@q ©øx\x82¡¿=\x8ae\x16\xce\xcfd\xb5\xc4q\x95~7\xd3HV\x94\xfd©­!¨¡¢Òhg©£\x1dH¢¬\x00&\xcc¡§\xcc\xa9\xc0/\xc00\xc0+\xc0,\xc0\x13\xc0\x09\xc0\x14\xc0" 400 -
+167.94.146.52 - - [18/Mar/2026 14:37:28] "GET / HTTP/1.1" 404 -
+167.94.146.52 - - [18/Mar/2026 14:37:29] code 505, message Invalid HTTP version (2.0)
+167.94.146.52 - - [18/Mar/2026 14:37:29] "PRI * HTTP/2.0" 505 -
+167.94.146.52 - - [18/Mar/2026 14:37:33] code 400, message Bad request version ('\xc0\x14\xc0')
+167.94.146.52 - - [18/Mar/2026 14:37:33] "\x16\x03\x01\x00\xee\x01\x00\x00\xea\x03\x03\xcf\xea]_\xfda*\xd1F¢¬¢¯J\x92\x13\x80!\xab¨£\x0ew\xf4©¡[\x16\xa5¨­u&x\xf1d\x02 \x8e\x18N\xfc\xef\x16\x1d©¡\x1cA\x13\xcd|}\xc0n\x14\x8e©¬4+y\x9f\xcd¢´\x99\x02\xd9\x802j\xd9\x00&\xcc¡§\xcc\xa9\xc0/\xc00\xc0+\xc0,\xc0\x13\xc0\x09\xc0\x14\xc0" 400 -
+167.94.146.52 - - [18/Mar/2026 14:37:34] "GET /sitemap.xml HTTP/1.1" 404 -
+
+=== ServerControlWindow started at 2026-03-18 16:01:21 ===
+
+=== ServerControlWindow started at 2026-03-18 16:06:45 ===
+failed to locate pyvenv.cfg: ??? ??? ?? ? ????.
+
+=== ServerControlWindow started at 2026-03-18 16:06:49 ===
+failed to locate pyvenv.cfg: ??? ??? ?? ? ????.
+
+=== ServerControlWindow started at 2026-03-18 16:06:52 ===
+failed to locate pyvenv.cfg: ??? ??? ?? ? ????.
+
+=== ServerControlWindow started at 2026-03-18 16:12:09 ===
+[2026-03-18 16:12:10,806] DEBUG in server: DEEPGRAM_API_KEY present: True
+[2026-03-18 16:12:10,806] DEBUG in server: DEEPGRAM_MODEL env: None
+[2026-03-18 16:12:10,807] DEBUG in server: DEEPGRAM_PUNCTUATE env: None
+[2026-03-18 16:12:10,807] INFO in server: {"ts_ms": 1773817930807, "event": "startup.ready", "deepgram_log_dir": "C:\\Users\\555a\\LoveSimulation_sample\\LoveSimulation_plan\\prototype\\episode1\\deepgram_logs", "server_debug_dir": "C:\\Users\\555a\\LoveSimulation_sample\\LoveSimulation_plan\\prototype\\episode1\\server_debug"}
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on http://127.0.0.1:5000
+Press CTRL+C to quit
+
+=== ServerControlWindow started at 2026-03-18 16:12:23 ===
+
+=== ServerControlWindow started at 2026-03-18 16:21:04 ===
+
+=== ServerControlWindow started at 2026-03-20 13:44:59 ===
+
+=== ServerControlWindow started at 2026-03-20 13:54:28 ===
+
+=== ServerControlWindow started at 2026-03-20 14:05:04 ===
+
+=== ServerControlWindow started at 2026-03-20 14:05:29 ===
+Traceback (most recent call last):
+  File "C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\server.py", line 1, in <module>
+    from flask import Flask, request, jsonify
+ModuleNotFoundError: No module named 'flask'
+
+=== ServerControlWindow started at 2026-03-20 14:16:38 ===
+
+=== ServerControlWindow started at 2026-03-20 14:17:14 ===
+
+=== ServerControlWindow started at 2026-03-20 14:35:05 ===
+
+=== ServerControlWindow started at 2026-03-25 08:06:15 ===
+
+=== ServerControlWindow started at 2026-03-25 08:59:27 ===
+Traceback (most recent call last):
+  File "C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\server.py", line 1, in <module>
+    from flask import Flask, request, jsonify
+ModuleNotFoundError: No module named 'flask'
+
+=== ServerControlWindow started at 2026-03-25 09:03:10 ===
+[2026-03-25 09:03:11,408] DEBUG in server: DEEPGRAM_API_KEY present: True
+[2026-03-25 09:03:11,408] DEBUG in server: DEEPGRAM_MODEL env: None
+[2026-03-25 09:03:11,408] DEBUG in server: DEEPGRAM_PUNCTUATE env: None
+[2026-03-25 09:03:11,408] INFO in server: {"ts_ms": 1774396991408, "event": "startup.ready", "deepgram_log_dir": "C:\\Users\\555a\\LoveSimulation_sample\\LoveSimulation_plan\\prototype\\episode1\\deepgram_logs", "server_debug_dir": "C:\\Users\\555a\\LoveSimulation_sample\\LoveSimulation_plan\\prototype\\episode1\\server_debug"}
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on http://127.0.0.1:5000
+Press CTRL+C to quit
+
+=== ServerControlWindow started at 2026-03-25 09:03:32 ===
+
+=== ServerControlWindow started at 2026-03-25 09:03:49 ===
+
+=== ServerControlWindow started at 2026-03-25 09:15:41 ===
+
+=== ServerControlWindow started at 2026-03-25 09:29:12 ===
+
+=== ServerControlWindow started at 2026-03-25 09:42:49 ===
+
+=== ServerControlWindow started at 2026-03-25 09:54:08 ===
+
+=== ServerControlWindow started at 2026-03-25 10:11:44 ===
+
+=== ServerControlWindow started at 2026-03-25 10:36:16 ===
+
+=== ServerControlWindow started at 2026-03-25 10:44:22 ===
+
+=== ServerControlWindow started at 2026-03-25 10:54:44 ===
+
+=== ServerControlWindow started at 2026-03-25 11:24:48 ===
+
+=== ServerControlWindow started at 2026-03-25 12:00:52 ===
+
+=== ServerControlWindow started at 2026-03-25 13:09:07 ===
+
+=== ServerControlWindow started at 2026-03-25 13:16:03 ===
+
+=== ServerControlWindow started at 2026-03-25 13:26:58 ===
+[2026-03-25 13:26:59,464] ERROR in server: {"ts_ms": 1774412819464, "event": "startup.npc_generator_failed", "error": "'cp949' codec can't encode character '\\u2717' in position 0: illegal multibyte sequence"}
+[2026-03-25 13:26:59,473] DEBUG in server: DEEPGRAM_API_KEY present: True
+[2026-03-25 13:26:59,473] DEBUG in server: DEEPGRAM_MODEL env: None
+[2026-03-25 13:26:59,473] DEBUG in server: DEEPGRAM_PUNCTUATE env: None
+[2026-03-25 13:26:59,473] INFO in server: {"ts_ms": 1774412819473, "event": "startup.ready", "deepgram_log_dir": "C:\\Users\\555a\\LoveSimulation_sample\\LoveSimulation_plan\\prototype\\episode1\\deepgram_logs", "server_debug_dir": "C:\\Users\\555a\\LoveSimulation_sample\\LoveSimulation_plan\\prototype\\episode1\\server_debug"}
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on http://127.0.0.1:5000
+Press CTRL+C to quit
+127.0.0.1 - - [25/Mar/2026 13:27:02] "POST /config/llm/test HTTP/1.1" 404 -
+
+=== ServerControlWindow started at 2026-03-25 13:37:20 ===
+[2026-03-25 13:37:21,134] DEBUG in server: DEEPGRAM_API_KEY present: True
+[2026-03-25 13:37:21,135] DEBUG in server: DEEPGRAM_MODEL env: None
+[2026-03-25 13:37:21,135] DEBUG in server: DEEPGRAM_PUNCTUATE env: None
+[2026-03-25 13:37:21,135] INFO in server: {"ts_ms": 1774413441135, "event": "startup.ready", "deepgram_log_dir": "C:\\Users\\555a\\LoveSimulation_sample\\LoveSimulation_plan\\prototype\\episode1\\deepgram_logs", "server_debug_dir": "C:\\Users\\555a\\LoveSimulation_sample\\LoveSimulation_plan\\prototype\\episode1\\server_debug"}
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on http://127.0.0.1:5000
+Press CTRL+C to quit
+[2026-03-25 13:38:16,083] DEBUG in server: DEEPGRAM_API_KEY present: True
+[2026-03-25 13:38:16,083] DEBUG in server: DEEPGRAM_MODEL env: None
+[2026-03-25 13:38:16,083] DEBUG in server: DEEPGRAM_PUNCTUATE env: None
+[2026-03-25 13:38:16,084] INFO in server: {"ts_ms": 1774413496083, "event": "startup.ready", "deepgram_log_dir": "C:\\Users\\555a\\LoveSimulation_sample\\LoveSimulation_plan\\prototype\\episode1\\deepgram_logs", "server_debug_dir": "C:\\Users\\555a\\LoveSimulation_sample\\LoveSimulation_plan\\prototype\\episode1\\server_debug"}
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on http://127.0.0.1:5000
+Press CTRL+C to quit
+127.0.0.1 - - [25/Mar/2026 13:38:18] "POST /config/llm/test HTTP/1.1" 404 -
+[2026-03-25 13:42:47,193] DEBUG in server: DEEPGRAM_API_KEY present: True
+[2026-03-25 13:42:47,193] DEBUG in server: DEEPGRAM_MODEL env: None
+[2026-03-25 13:42:47,194] DEBUG in server: DEEPGRAM_PUNCTUATE env: None
+[2026-03-25 13:42:47,194] INFO in server: {"ts_ms": 1774413767194, "event": "startup.ready", "deepgram_log_dir": "C:\\Users\\555a\\LoveSimulation_sample\\LoveSimulation_plan\\prototype\\episode1\\deepgram_logs", "server_debug_dir": "C:\\Users\\555a\\LoveSimulation_sample\\LoveSimulation_plan\\prototype\\episode1\\server_debug"}
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on http://127.0.0.1:5000
+Press CTRL+C to quit
+[2026-03-25 13:42:56,080] WARNING in server: {"ts_ms": 1774413776080, "event": "config.llm_test_unavailable", "provider": "claude"}
+127.0.0.1 - - [25/Mar/2026 13:42:56] "POST /config/llm/test HTTP/1.1" 400 -
+
+=== ServerControlWindow started at 2026-03-25 13:50:46 ===
+[2026-03-25 13:50:47,419] DEBUG in server: DEEPGRAM_API_KEY present: True
+[2026-03-25 13:50:47,419] DEBUG in server: DEEPGRAM_MODEL env: None
+[2026-03-25 13:50:47,420] DEBUG in server: DEEPGRAM_PUNCTUATE env: None
+[2026-03-25 13:50:47,420] INFO in server: {"ts_ms": 1774414247420, "event": "startup.ready", "deepgram_log_dir": "C:\\Users\\555a\\LoveSimulation_sample\\LoveSimulation_plan\\prototype\\episode1\\deepgram_logs", "server_debug_dir": "C:\\Users\\555a\\LoveSimulation_sample\\LoveSimulation_plan\\prototype\\episode1\\server_debug"}
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on http://127.0.0.1:5000
+Press CTRL+C to quit
+[2026-03-25 13:50:50,033] WARNING in server: {"ts_ms": 1774414250033, "event": "config.llm_test_unavailable", "provider": "claude"}
+127.0.0.1 - - [25/Mar/2026 13:50:50] "POST /config/llm/test HTTP/1.1" 400 -
+[2026-03-25 13:50:54,775] WARNING in server: {"ts_ms": 1774414254774, "event": "config.llm_test_unavailable", "provider": "claude"}
+127.0.0.1 - - [25/Mar/2026 13:50:54] "POST /config/llm/test HTTP/1.1" 400 -
+[2026-03-25 13:51:03,471] INFO in server: {"ts_ms": 1774414263471, "event": "config.llm_updated", "provider": "unknown"}
+127.0.0.1 - - [25/Mar/2026 13:51:03] "POST /config/llm HTTP/1.1" 200 -
+127.0.0.1 - - [25/Mar/2026 13:51:13] "GET /config/llm HTTP/1.1" 200 -
+
+=== ServerControlWindow started at 2026-03-25 13:51:55 ===
+
+=== ServerControlWindow started at 2026-03-25 14:02:43 ===
+[2026-03-25 14:02:43,838] DEBUG in server: DEEPGRAM_API_KEY present: True
+[2026-03-25 14:02:43,838] DEBUG in server: DEEPGRAM_MODEL env: None
+[2026-03-25 14:02:43,838] DEBUG in server: DEEPGRAM_PUNCTUATE env: None
+[2026-03-25 14:02:43,839] INFO in server: {"ts_ms": 1774414963838, "event": "startup.ready", "deepgram_log_dir": "C:\\Users\\555a\\LoveSimulation_sample\\LoveSimulation_plan\\prototype\\episode1\\deepgram_logs", "server_debug_dir": "C:\\Users\\555a\\LoveSimulation_sample\\LoveSimulation_plan\\prototype\\episode1\\server_debug"}
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on http://127.0.0.1:5000
+Press CTRL+C to quit
+
+=== ServerControlWindow started at 2026-03-25 14:07:35 ===
+[2026-03-25 14:07:35,878] DEBUG in server: DEEPGRAM_API_KEY present: True
+[2026-03-25 14:07:35,878] DEBUG in server: DEEPGRAM_MODEL env: None
+[2026-03-25 14:07:35,878] DEBUG in server: DEEPGRAM_PUNCTUATE env: None
+[2026-03-25 14:07:35,878] INFO in server: {"ts_ms": 1774415255878, "event": "startup.ready", "deepgram_log_dir": "C:\\Users\\555a\\LoveSimulation_sample\\LoveSimulation_plan\\prototype\\episode1\\deepgram_logs", "server_debug_dir": "C:\\Users\\555a\\LoveSimulation_sample\\LoveSimulation_plan\\prototype\\episode1\\server_debug"}
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on http://127.0.0.1:5000
+Press CTRL+C to quit
+[2026-03-25 14:07:38,198] INFO in server: {"ts_ms": 1774415258198, "event": "config.llm_updated", "provider": "unknown"}
+127.0.0.1 - - [25/Mar/2026 14:07:38] "POST /config/llm HTTP/1.1" 200 -
+[2026-03-25 14:21:09,413] DEBUG in server: DEEPGRAM_API_KEY present: True
+[2026-03-25 14:21:09,414] DEBUG in server: DEEPGRAM_MODEL env: None
+[2026-03-25 14:21:09,414] DEBUG in server: DEEPGRAM_PUNCTUATE env: None
+[2026-03-25 14:21:09,414] INFO in server: {"ts_ms": 1774416069414, "event": "startup.ready", "deepgram_log_dir": "C:\\Users\\555a\\LoveSimulation_sample\\LoveSimulation_plan\\prototype\\episode1\\deepgram_logs", "server_debug_dir": "C:\\Users\\555a\\LoveSimulation_sample\\LoveSimulation_plan\\prototype\\episode1\\server_debug"}
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on http://127.0.0.1:5000
+Press CTRL+C to quit
+[2026-03-25 14:21:11,512] ERROR in server: set llm config failed
+Traceback (most recent call last):
+  File "C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\config_manager.py", line 170, in save
+    print(f"\u2713 Configuration saved to {self.config_file}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'cp949' codec can't encode character '\u2713' in position 0: illegal multibyte sequence
+During handling of the above exception, another exception occurred:
+Traceback (most recent call last):
+  File "C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\server.py", line 1203, in set_llm_config
+    if CONFIG.save():
+       ~~~~~~~~~~~^^
+  File "C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\config_manager.py", line 173, in save
+    print(f"\u2717 Failed to save configuration: {e}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'cp949' codec can't encode character '\u2717' in position 0: illegal multibyte sequence
+[2026-03-25 14:21:11,514] ERROR in server: {"ts_ms": 1774416071514, "event": "config.llm_save_failed", "error": "'cp949' codec can't encode character '\\u2717' in position 0: illegal multibyte sequence"}
+127.0.0.1 - - [25/Mar/2026 14:21:11] "POST /config/llm HTTP/1.1" 500 -
+[2026-03-25 14:25:25,388] DEBUG in server: DEEPGRAM_API_KEY present: True
+[2026-03-25 14:25:25,388] DEBUG in server: DEEPGRAM_MODEL env: None
+[2026-03-25 14:25:25,388] DEBUG in server: DEEPGRAM_PUNCTUATE env: None
+[2026-03-25 14:25:25,389] INFO in server: {"ts_ms": 1774416325388, "event": "startup.ready", "deepgram_log_dir": "C:\\Users\\555a\\LoveSimulation_sample\\LoveSimulation_plan\\prototype\\episode1\\deepgram_logs", "server_debug_dir": "C:\\Users\\555a\\LoveSimulation_sample\\LoveSimulation_plan\\prototype\\episode1\\server_debug"}
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on http://127.0.0.1:5000
+Press CTRL+C to quit
+[2026-03-25 14:25:28,575] INFO in server: {"ts_ms": 1774416328575, "event": "config.llm_updated", "provider": "unknown", "saved_path": "C:\\Users\\555a\\LoveSimulation_sample\\LoveSimulation_plan\\prototype\\episode1\\llm_config.json"}
+127.0.0.1 - - [25/Mar/2026 14:25:28] "POST /config/llm HTTP/1.1" 200 -
+
+=== ServerControlWindow started at 2026-03-25 14:29:28 ===
+[2026-03-25 14:29:28,938] DEBUG in server: DEEPGRAM_API_KEY present: True
+[2026-03-25 14:29:28,938] DEBUG in server: DEEPGRAM_MODEL env: None
+[2026-03-25 14:29:28,938] DEBUG in server: DEEPGRAM_PUNCTUATE env: None
+[2026-03-25 14:29:28,938] INFO in server: {"ts_ms": 1774416568938, "event": "startup.ready", "deepgram_log_dir": "C:\\Users\\555a\\LoveSimulation_sample\\LoveSimulation_plan\\prototype\\episode1\\deepgram_logs", "server_debug_dir": "C:\\Users\\555a\\LoveSimulation_sample\\LoveSimulation_plan\\prototype\\episode1\\server_debug"}
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on http://127.0.0.1:5000
+Press CTRL+C to quit
+[2026-03-25 14:29:32,649] INFO in server: {"ts_ms": 1774416572649, "event": "config.llm_updated", "provider": "unknown", "saved_path": "C:\\Users\\555a\\LoveSimulation_sample\\LoveSimulation_plan\\prototype\\episode1\\llm_config.json"}
+127.0.0.1 - - [25/Mar/2026 14:29:32] "POST /config/llm HTTP/1.1" 200 -
+
+=== ServerControlWindow started at 2026-03-25 14:34:43 ===
+[2026-03-25 14:34:43,984] DEBUG in server: DEEPGRAM_API_KEY present: True
+[2026-03-25 14:34:43,984] DEBUG in server: DEEPGRAM_MODEL env: None
+[2026-03-25 14:34:43,984] DEBUG in server: DEEPGRAM_PUNCTUATE env: None
+[2026-03-25 14:34:43,985] INFO in server: {"ts_ms": 1774416883984, "event": "startup.ready", "deepgram_log_dir": "C:\\Users\\555a\\LoveSimulation_sample\\LoveSimulation_plan\\prototype\\episode1\\deepgram_logs", "server_debug_dir": "C:\\Users\\555a\\LoveSimulation_sample\\LoveSimulation_plan\\prototype\\episode1\\server_debug"}
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on http://127.0.0.1:5000
+Press CTRL+C to quit
+[2026-03-25 14:34:55,785] INFO in server: {"ts_ms": 1774416895785, "event": "config.llm_updated", "provider": "gemini", "saved_path": "C:\\Users\\555a\\LoveSimulation_sample\\LoveSimulation_plan\\prototype\\episode1\\llm_config.json"}
+127.0.0.1 - - [25/Mar/2026 14:34:55] "POST /config/llm HTTP/1.1" 200 -
+
+=== ServerControlWindow started at 2026-03-25 14:35:13 ===
+
+=== ServerControlWindow started at 2026-03-25 14:45:20 ===
+
+=== ServerControlWindow started at 2026-03-25 15:15:27 ===
+
+=== ServerControlWindow started at 2026-03-25 15:23:10 ===
+
+=== ServerControlWindow started at 2026-03-25 15:27:48 ===
+C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_provider.py:182: FutureWarning: 
+All support for the `google.generativeai` package has ended. It will no longer be receiving 
+updates or bug fixes. Please switch to the `google.genai` package as soon as possible.
+See README for more details:
+https://github.com/google-gemini/deprecated-generative-ai-python/blob/main/README.md
+  import google.generativeai as genai
+[2026-03-25 15:27:50,188] DEBUG in server: DEEPGRAM_API_KEY present: True
+[2026-03-25 15:27:50,188] DEBUG in server: DEEPGRAM_MODEL env: None
+[2026-03-25 15:27:50,189] DEBUG in server: DEEPGRAM_PUNCTUATE env: None
+[2026-03-25 15:27:50,189] INFO in server: {"ts_ms": 1774420070189, "event": "startup.ready", "deepgram_log_dir": "C:\\Users\\555a\\LoveSimulation_sample\\LoveSimulation_plan\\prototype\\episode1\\deepgram_logs", "server_debug_dir": "C:\\Users\\555a\\LoveSimulation_sample\\LoveSimulation_plan\\prototype\\episode1\\server_debug"}
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on http://127.0.0.1:5000
+Press CTRL+C to quit
+
+=== ServerControlWindow started at 2026-03-25 15:28:48 ===
+
+=== ServerControlWindow started at 2026-03-25 15:43:31 ===
+C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_provider.py:182: FutureWarning: 
+All support for the `google.generativeai` package has ended. It will no longer be receiving 
+updates or bug fixes. Please switch to the `google.genai` package as soon as possible.
+See README for more details:
+https://github.com/google-gemini/deprecated-generative-ai-python/blob/main/README.md
+  import google.generativeai as genai
+[2026-03-25 15:43:32,898] DEBUG in server: DEEPGRAM_API_KEY present: True
+[2026-03-25 15:43:32,898] DEBUG in server: DEEPGRAM_MODEL env: None
+[2026-03-25 15:43:32,898] DEBUG in server: DEEPGRAM_PUNCTUATE env: None
+[2026-03-25 15:43:32,898] INFO in server: {"ts_ms": 1774421012898, "event": "startup.ready", "deepgram_log_dir": "C:\\Users\\555a\\LoveSimulation_sample\\LoveSimulation_plan\\prototype\\episode1\\deepgram_logs", "server_debug_dir": "C:\\Users\\555a\\LoveSimulation_sample\\LoveSimulation_plan\\prototype\\episode1\\server_debug"}
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on http://127.0.0.1:5000
+Press CTRL+C to quit
+
+=== ServerControlWindow started at 2026-03-25 15:43:55 ===
+
+=== ServerControlWindow started at 2026-03-25 15:49:41 ===
+
+=== ServerControlWindow started at 2026-03-25 16:00:38 ===
+
+=== ServerControlWindow started at 2026-03-25 16:19:03 ===
+
+=== ServerControlWindow started at 2026-03-25 16:37:16 ===

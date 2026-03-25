@@ -1,0 +1,64 @@
+{
+  "metadata": {
+    "transaction_key": "deprecated",
+    "request_id": "fa0172df-075e-4bea-8035-9e2565080d90",
+    "sha256": "5bbfdcaeaf2a25bab73ab482aebc4b48438abdf8fa6d84dcd965468b85c215d6",
+    "created": "2026-03-25T01:36:31.332Z",
+    "duration": 3.69,
+    "channels": 1,
+    "models": [
+      "3c79c76c-d186-482b-89d8-8b005a5e5917"
+    ],
+    "model_info": {
+      "3c79c76c-d186-482b-89d8-8b005a5e5917": {
+        "name": "general-nova-3",
+        "version": "2025-09-24.25124",
+        "arch": "nova-3"
+      }
+    }
+  },
+  "results": {
+    "channels": [
+      {
+        "alternatives": [
+          {
+            "transcript": "사랑해친구야오늘뭐하니",
+            "confidence": 0.9951172,
+            "words": [
+              {
+                "word": "사랑해",
+                "start": 0.64,
+                "end": 1.04,
+                "confidence": 0.9951172
+              },
+              {
+                "word": "친구야",
+                "start": 1.04,
+                "end": 1.52,
+                "confidence": 0.99121094
+              },
+              {
+                "word": "오늘",
+                "start": 1.52,
+                "end": 1.76,
+                "confidence": 1.0
+              },
+              {
+                "word": "뭐",
+                "start": 1.76,
+                "end": 2.0,
+                "confidence": 1.0
+              },
+              {
+                "word": "하니",
+                "start": 2.0,
+                "end": 7.44,
+                "confidence": 0.8977051
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "metadata": {
+    "transaction_key": "deprecated",
+    "request_id": "324f4174-f77e-49b7-95be-5de28a708e2f",
+    "sha256": "9343723888da43dc86e900455f6f8d3c2d2028a4a4fdf2de2e2d441b81851c80",
+    "created": "2026-03-18T07:12:59.558Z",
+    "duration": 7.14,
+    "channels": 1,
+    "models": [
+      "3c79c76c-d186-482b-89d8-8b005a5e5917"
+    ],
+    "model_info": {
+      "3c79c76c-d186-482b-89d8-8b005a5e5917": {
+        "name": "general-nova-3",
+        "version": "2025-09-24.25124",
+        "arch": "nova-3"
+      }
+    }
+  },
+  "results": {
+    "channels": [
+      {
+        "alternatives": [
+          {
+            "transcript": "간나다라바바사아자체카타파하",
+            "confidence": 0.8831962,
+            "words": [
+              {
+                "word": "간나다라바바사",
+                "start": 0.88,
+                "end": 1.92,
+                "confidence": 0.8040161
+              },
+              {
+                "word": "아자체카타파하",
+                "start": 1.92,
+                "end": 3.4399998,
+                "confidence": 0.8831962
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

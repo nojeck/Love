@@ -1,0 +1,52 @@
+{
+  "metadata": {
+    "transaction_key": "deprecated",
+    "request_id": "825c974e-bec2-49f2-a836-c62ca8ec265e",
+    "sha256": "a9e1998e1f774ffa6c9b973bda8b0b869197e8aff33ffaa970549ee3a6a237b6",
+    "created": "2026-03-25T03:01:05.362Z",
+    "duration": 3.25,
+    "channels": 1,
+    "models": [
+      "3c79c76c-d186-482b-89d8-8b005a5e5917"
+    ],
+    "model_info": {
+      "3c79c76c-d186-482b-89d8-8b005a5e5917": {
+        "name": "general-nova-3",
+        "version": "2025-09-24.25124",
+        "arch": "nova-3"
+      }
+    }
+  },
+  "results": {
+    "channels": [
+      {
+        "alternatives": [
+          {
+            "transcript": "안녕하세요오늘뭐하세요",
+            "confidence": 0.7836914,
+            "words": [
+              {
+                "word": "안녕하세요",
+                "start": 0.64,
+                "end": 1.28,
+                "confidence": 0.7836914
+              },
+              {
+                "word": "오늘",
+                "start": 1.28,
+                "end": 1.68,
+                "confidence": 0.9941406
+              },
+              {
+                "word": "뭐하세요",
+                "start": 1.68,
+                "end": 3.1999998,
+                "confidence": 0.76049805
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

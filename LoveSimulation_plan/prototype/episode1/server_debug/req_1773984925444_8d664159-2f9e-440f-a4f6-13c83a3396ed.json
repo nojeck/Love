@@ -1,0 +1,44 @@
+{
+  "req_uuid": "8d664159-2f9e-440f-a4f6-13c83a3396ed",
+  "client_req_id": "c564d5d4e7ef4104a900af43365ea1de",
+  "timestamp": 1773984925444,
+  "remote": "127.0.0.1",
+  "content_length": 248729,
+  "headers": {
+    "Host": "127.0.0.1:5000",
+    "User-Agent": "UnityPlayer/6000.3.9f1 (UnityWebRequest/1.0, libcurl/8.10.1-DEV)",
+    "Accept": "*/*",
+    "Accept-Encoding": "deflate, gzip",
+    "Content-Type": "multipart/form-data; boundary=\"tdQh4pMyQsZtzY8qOUnKIS6GKCVaIHBVjj2YWN4c\"",
+    "X-Unity-Version": "6000.3.9f1",
+    "Content-Length": "248729"
+  },
+  "form_keys": [
+    "client_req_id"
+  ],
+  "files_keys": [
+    "file"
+  ],
+  "saved_path": "C:\\Users\\555a\\AppData\\Local\\Temp\\tmp3irtz1cf.wav",
+  "saved_size": 248364,
+  "sha256": "6ad86d38ae6329960c0bc5ccb7bc3d6b2d562557a2e8d2566fd7ac25bf460a7c",
+  "deepgram_request_id": "325ff801-2784-4cce-b7f1-65d3c8ebd218",
+  "deepgram_log_file": "8d664159-2f9e-440f-a4f6-13c83a3396ed__325ff801-2784-4cce-b7f1-65d3c8ebd218.body.json",
+  "deepgram_status": "rest_success",
+  "deepgram_error": null,
+  "deepgram_attempt_count": 1,
+  "deepgram_confidence": 0.8852539,
+  "deepgram_http_status": 200,
+  "transcript_len": 11,
+  "response_summary": {
+    "req_uuid": "8d664159-2f9e-440f-a4f6-13c83a3396ed",
+    "client_req_id": "c564d5d4e7ef4104a900af43365ea1de",
+    "deepgram_status": "rest_success",
+    "deepgram_called": true,
+    "deepgram_request_id": "325ff801-2784-4cce-b7f1-65d3c8ebd218",
+    "deepgram_log_file": "8d664159-2f9e-440f-a4f6-13c83a3396ed__325ff801-2784-4cce-b7f1-65d3c8ebd218.body.json",
+    "transcript_source": "rest",
+    "transcript_is_empty": false,
+    "latency_ms": 8871
+  }
+}

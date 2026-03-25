@@ -1,0 +1,25 @@
+{
+  "req_uuid": "aaf077c3-520a-4c2d-a645-4113c940a281",
+  "client_req_id": "79f17e257d8d49fdba78b0f5af8d5243",
+  "timestamp": 1774397058416,
+  "remote": "127.0.0.1",
+  "content_length": 168409,
+  "headers": {
+    "Host": "127.0.0.1:5000",
+    "User-Agent": "UnityPlayer/6000.3.9f1 (UnityWebRequest/1.0, libcurl/8.10.1-DEV)",
+    "Accept": "*/*",
+    "Accept-Encoding": "deflate, gzip",
+    "Content-Type": "multipart/form-data; boundary=\"eH8XG2jk76EBEDVH0hBEtMg6DdrTwsKS1twDBgBO\"",
+    "X-Unity-Version": "6000.3.9f1",
+    "Content-Length": "168409"
+  },
+  "form_keys": [
+    "client_req_id"
+  ],
+  "files_keys": [
+    "file"
+  ],
+  "saved_path": "C:\\Users\\555a\\AppData\\Local\\Temp\\tmpq53l9qwg.wav",
+  "saved_size": 168044,
+  "sha256": "0f2b5041864ae9f0280c9dcf0c59237442e7014741665f65b1e41d493dfdf5bb"
+}
