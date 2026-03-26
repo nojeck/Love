@@ -299,3 +299,9 @@ Press CTRL+C to quit
 === ServerControlWindow started at 2026-03-25 16:19:03 ===
 
 === ServerControlWindow started at 2026-03-25 16:37:16 ===
+
+=== ServerControlWindow started at 2026-03-26 13:15:39 ===
+Traceback (most recent call last):
+  File "C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\server.py", line 1, in <module>
+    from flask import Flask, request, jsonify
+ModuleNotFoundError: No module named 'flask'
