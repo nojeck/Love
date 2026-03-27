@@ -217,19 +217,19 @@ def _update_npc_state(session_id, score, emotion, mood_change, ...):
 ### 4.4 구현 로드맵
 
 **Phase 1 (즉시)**:
-- [ ] OpenRouter API 통합
-- [ ] 기본 모델을 Gemini Flash-Lite로 변경
-- [ ] 비용 모니터링 로깅 추가
+- [x] OpenRouter API 통합
+- [x] 기본 모델을 DeepSeek Chat으로 변경
+- [x] 비용 모니터링 로깅 추가
 
 **Phase 2 (단기)**:
-- [ ] 스마트 라우팅 구현
+- [x] 스마트 라우팅 구현
   - 점수 기반 모델 선택
   - 응답 복잡도 분석
-- [ ] 문맥 캐싱 적용
+- [x] 문맥 캐싱 적용
 
 **Phase 3 (중기)**:
-- [ ] 배치 API로 대화 요약 분리
-- [ ] DeepSeek로 야간 분석 작업
+- [x] 배치 API로 대화 요약 분리
+- [x] DeepSeek로 야간 분석 작업
 - [ ] 한국 AI 기본법 준수 기능
 
 ---

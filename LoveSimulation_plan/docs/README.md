@@ -1,7 +1,7 @@
 # 무한 회귀 연애 (LoveSimulation) - 문서 정리
 
-**최종 업데이트:** 2026-03-25  
-**프로젝트 상태:** Phase 1-5 완료 (개발 진행 중)
+**최종 업데이트:** 2026-03-27  
+**프로젝트 상태:** Phase 1-6 완료 (개발 진행 중)
 
 ---
 
@@ -13,7 +13,7 @@
 
 1. **PROJECT_STATUS.md** ⭐
    - 프로젝트 전체 현황 및 진행 상태
-   - Phase 1-5 완료 요약
+   - Phase 1-6 완료 요약
    - 기술 아키텍처 및 성능 특성
    - 다음 단계 및 우선 순위
    - **→ 이 문서부터 시작하세요**
@@ -116,11 +116,11 @@ design.md + 기술 가이드 참고
 
 | 문서 | 용도 | 읽는 시간 |
 |------|------|---------|
-| PROJECT_STATUS.md | 전체 현황 파악 | 10분 |
+| PROJECT_STATUS.md | 전체 현황 파악 (Phase 1-6) | 10분 |
 | 무한 회귀 연애!.md | 게임 기획 이해 | 15분 |
 | PHASE_1_2_REPORT.md | Phase 1-2 상세 | 20분 |
 | PHASE_3_REPORT.md | Phase 3 상세 | 15분 |
-| PROGRESS.md | 진행 상황 확인 | 5분 |
+| PROGRESS.md | 진행 상황 확인 (Phase 1-6) | 5분 |
 | design.md | Episode 1 설계 | 10분 |
 | 기술 가이드들 | 필요시 참고 | 가변 |
 
@@ -132,6 +132,29 @@ design.md + 기술 가이드 참고
 ```bash
 cd LoveSimulation_plan/prototype/episode1
 python server.py
+```
+
+### OpenRouter + DeepSeek (추천) ✅
+```bash
+# llm_config.json 설정
+{
+  "llm_provider": "openrouter",
+  "openrouter_api_key": "sk-or-v1-...",
+  "openrouter_model": "deepseek/deepseek-chat"
+}
+python server.py
+# 비용: 90% 절감
+```
+
+### SmartRouter (복잡도 기반 자동 선택)
+```bash
+# llm_config.json 설정
+{
+  "llm_provider": "smart",
+  "openrouter_api_key": "sk-or-v1-..."
+}
+python server.py
+# 자동 라우팅으로 비용 최적화
 ```
 
 ### Claude LLM 활성화
@@ -151,5 +174,5 @@ python server.py
 
 ---
 
-**프로젝트 상태:** 개발 진행 중 (Phase 1-5 완료)  
-**마지막 업데이트:** 2026-03-25
+**프로젝트 상태:** 개발 진행 중 (Phase 1-6 완료)  
+**마지막 업데이트:** 2026-03-27

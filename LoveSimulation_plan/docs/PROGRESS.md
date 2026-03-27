@@ -1,8 +1,8 @@
 # 진행 상황 및 다음 계획 (Episode 1 프로토타입)
 
-작성일: 2026-03-20 (업데이트)
+작성일: 2026-03-27 (업데이트)
 
-## 현재 진행상황 (Phase 1-3.5 완료)
+## 현재 진행상황 (Phase 1-6 완료)
 
 ### Phase 1: Audio Calibration System ✅
 - 음성 지표 추출 안정화: Praat + Librosa fallback
@@ -85,26 +85,65 @@ context = history.get_context('player_001')
 # → repeated_emotions: ['love'] (3회 이상)
 ```
 
+## Phase 5: Server 통합 & API 완성 ✅
+
+**상태**: ✅ 완료 (2026-03-23)
+**파일**: `server.py`, `config_manager.py`, `npc_response_generator.py`
+
+구현:
+- `/analyze` 엔드포인트: 음성 분석 + 텍스트 점수 + 대화 맥락
+- `/feedback` 엔드포인트: NPC 피드백 생성 + 반복 감지
+- `/conversation-status` 엔드포인트: 현재 대화 상태 조회
+- `/hybrid-status` 엔드포인트: 시스템 상태 확인
+
+## Phase 6: LLM API 최적화 ✅ **← 최신**
+
+**상태**: ✅ 완료 (2026-03-27)
+**파일**: `llm_provider.py`, `npc_response_generator_v2.py`, `llm_text_scorer.py`
+
+### Phase 6.1: OpenRouter 통합
+- OpenRouterProvider 클래스 구현 (500+ 모델 접근)
+- DeepSeek Chat/R1 기본 모델 설정
+- CostTracker 클래스로 실시간 비용 모니터링
+- `/llm-costs`, `/llm-costs/reset` API 추가
+
+### Phase 6.2: SmartRouter 구현
+- SmartRouter 클래스 구현 (복잡도 기반 모델 자동 선택)
+- 복잡도 분석: 텍스트 길이, 감정 키워드, 점수, 컨텍스트
+- 3단계 티어: cheap → standard → premium
+- NPC 응답 생성 및 텍스트 점수 계산에 스마트 라우팅 적용
+- `/llm-routing-stats` API 추가
+
+### Phase 6.3: 문맥 캐싱 & 배치 처리
+- OpenRouterProvider에 시스템 프롬프트 캐싱 추가 (500자 이상 자동 캐싱)
+- 캐시 적중 시 토큰 절약 (27%+)
+- BatchProcessor 클래스 구현 (최대 10개 요청 병렬 처리)
+- `/llm-cache-stats`, `/llm-cache-clear`, `/llm-batch` API 추가
+
+**비용 절감 효과:**
+```
+기존 (Gemini Flash): ~$50-100/월
+현재 (DeepSeek + 최적화): ~$3-5/월
+총 절감: 90%+
+```
+
 ## 다음 단계 (우선 순위)
 
-1. **Server 통합** (이번주)
-   - `/analyze`에 conversation context 추가
-   - `/feedback`에서 반복 감지 시 LLM 강제
+1. **Unity 통합 테스트** (이번주)
+   - 캘리브레이션 UI 검증
+   - STT → LLM → NPC 응답 플로우 테스트
+   - 비용 모니터링 검증
 
-2. **NPC 반응 조정** (이번달)
-   - 감정 호에 따른 NPC 기분 변화
-   - 반복 감지 시 피드백 다양화
-
-3. **플레이테스트** (다음달)
+2. **플레이테스트** (이번달)
    - 신뢰도 임계값 (현재 0.6) 튜닝
    - 감정 반복 임계값 (현재 3회) 조정
    - NPC 반응 자연스러움 평가
 
-4. **LLM API 통합** (선택사항)
-   - Claude/OpenAI API 설정
-   - 불명확한 응답 자동 개선
+3. **Chaos Meter 연동** (다음달)
+   - 점수 기반 감정 상태 변화
+   - 히든 루트 트리거 구현
 
-5. **사용자 개성 학습** (향후)
+4. **사용자 개성 학습** (향후)
    - 같은 사용자 응답 패턴 학습
    - 반복되는 사용자에게 맞춘 응답
 
@@ -122,8 +161,10 @@ context = history.get_context('player_001')
 
 ### Text System
 - 규칙 기반: `prototype/episode1/text_scorer.py`
-- **LLM 제공자**: `prototype/episode1/llm_provider.py` ← **새로**
-- **하이브리드**: `prototype/episode1/hybrid_text_scorer.py` ← **새로**
+- LLM 제공자: `prototype/episode1/llm_provider.py`
+- 하이브리드: `prototype/episode1/hybrid_text_scorer.py`
+- **SmartRouter**: `prototype/episode1/llm_provider.py` ← **Phase 6**
+- **BatchProcessor**: `prototype/episode1/llm_provider.py` ← **Phase 6**
 - 감정 어휘사전: `prototype/episode1/emotion_lexicon.json`
 
 ### Server
@@ -144,7 +185,32 @@ python server.py
 # 의존성 없음, 빠름
 ```
 
-### Claude LLM 활성화
+### OpenRouter + DeepSeek (추천) ✅
+```bash
+# llm_config.json 설정
+{
+  "llm_provider": "openrouter",
+  "openrouter_api_key": "sk-or-v1-...",
+  "openrouter_model": "deepseek/deepseek-chat"
+}
+
+python server.py
+# 비용: ~$0.0003/1K 토큰 (90% 절감)
+```
+
+### SmartRouter (복잡도 기반 자동 선택)
+```bash
+# llm_config.json 설정
+{
+  "llm_provider": "smart",
+  "openrouter_api_key": "sk-or-v1-..."
+}
+
+python server.py
+# 자동 라우팅으로 비용 최적화
+```
+
+### Claude LLM 활성화 (기존)
 ```bash
 export ANTHROPIC_API_KEY=sk-ant-...
 export USE_LLM=true
@@ -152,7 +218,7 @@ export LLM_PROVIDER=claude
 python server.py
 ```
 
-### OpenAI GPT 활성화
+### OpenAI GPT 활성화 (기존)
 ```bash
 export OPENAI_API_KEY=sk-...
 export USE_LLM=true
@@ -180,7 +246,9 @@ python server.py
 
 | LLM | 응답 수 | 비용 | 비고 |
 |-----|--------|------|------|
-| Rules Only | 100K | $0 | 추천 |
+| Rules Only | 100K | $0 | 기본 |
+| **OpenRouter + DeepSeek** | 100K | **$3-5** | ✅ 추천 (90% 절감) |
+| **SmartRouter** | 100K | **$2-4** | ✅ 최적 (자동 라우팅) |
 | Claude | 100K | $60 | 신뢰도 <0.6만 |
 | OpenAI | 100K | $600 | 비쌈 |
 | Ollama | 100K | $0 | 느림 |
@@ -188,5 +256,5 @@ python server.py
 ---
 
 저장 위치: `PROGRESS.md` (업데이트됨)
-최종 업데이트: 2026-03-20
+최종 업데이트: 2026-03-27
 담당자: Copilot
