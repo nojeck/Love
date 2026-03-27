@@ -15,6 +15,7 @@ from conversation_history import ConversationHistory
 from npc_response_generator import NPCResponseGenerator
 from npc_response_generator_v2 import NPCResponseGeneratorV2
 from config_manager import ConfigManager
+from episode_manager import EpisodeManager
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
@@ -1905,6 +1906,301 @@ def test_llm_config():
             'status': 'error'
         }), 500
 
+
+# ============================================
+# Episode Management APIs (Phase 7.1)
+# ============================================
+
+# EpisodeManager 인스턴스
+episode_manager = None
+
+def get_episode_manager():
+    """EpisodeManager 싱글톤 인스턴스 반환"""
+    global episode_manager
+    if episode_manager is None:
+        episode_manager = EpisodeManager()
+    return episode_manager
+
+
+@app.route('/episode/start', methods=['POST'])
+def episode_start():
+    """
+    에피소드 시작
+    
+    Request:
+        {
+            "episode_id": 1,
+            "player_id": "player_001"
+        }
+    
+    Response:
+        {
+            "status": "ok",
+            "episode": {...},
+            "situation": {...},
+            "npc": {...},
+            "next_action": "npc_dialogue"
+        }
+    """
+    try:
+        data = request.get_json() or {}
+        episode_id = data.get('episode_id', 1)
+        player_id = data.get('player_id', 'default_player')
+        npc_id = data.get('npc_id', 'suji')
+        
+        manager = get_episode_manager()
+        result = manager.start_episode(player_id, episode_id, npc_id)
+        
+        log_event('info', 'episode.started', 
+                  player_id=player_id, 
+                  episode_id=episode_id,
+                  situation_id=result['situation']['id'])
+        
+        return jsonify({
+            'status': 'ok',
+            **result
+        })
+        
+    except FileNotFoundError as e:
+        log_event('warning', 'episode.not_found', error=str(e))
+        return jsonify({
+            'status': 'error',
+            'message': f'Episode not found: {str(e)}'
+        }), 404
+        
+    except Exception as e:
+        app.logger.exception('episode start failed')
+        log_event('error', 'episode.start_exception', error=str(e))
+        return jsonify({
+            'status': 'error',
+            'error': str(e)
+        }), 500
+
+@app.route('/episode/status', methods=['GET'])
+def episode_status():
+    """
+    현재 에피소드 상태 조회
+    
+    Query Params:
+        player_id: 플레이어 ID
+    
+    Response:
+        {
+            "status": "ok",
+            "game_status": "continue|clear|fail|chaos",
+            "affection": 50,
+            "chaos_level": 0.0,
+            "turn_count": 0
+        }
+    """
+    try:
+        player_id = request.args.get('player_id', 'default_player')
+        
+        manager = get_episode_manager()
+        game_status = manager.check_game_status(player_id)
+        
+        return jsonify({
+            'status': 'ok',
+            **game_status
+        })
+        
+    except Exception as e:
+        app.logger.exception('episode status failed')
+        log_event('error', 'episode.status_exception', error=str(e))
+        return jsonify({
+            'status': 'error',
+            'error': str(e)
+        }), 500
+
+@app.route('/npc/dialogue', methods=['GET'])
+def npc_dialogue():
+    """
+    NPC 대화 조회
+    
+    Query Params:
+        episode_id: 에피소드 ID
+        situation_id: 상황 ID
+        npc_id: NPC ID (default: suji)
+    
+    Response:
+        {
+            "status": "ok",
+            "dialogue": {...},
+            "ui": {...},
+            "expected_keywords": [...],
+            "hint_text": "..."
+        }
+    """
+    try:
+        episode_id = int(request.args.get('episode_id', 1))
+        situation_id = request.args.get('situation_id', 'sit_001')
+        npc_id = request.args.get('npc_id', 'suji')
+        
+        manager = get_episode_manager()
+        result = manager.get_npc_dialogue(episode_id, situation_id, npc_id)
+        
+        log_event('info', 'npc.dialogue_sent',
+                  episode_id=episode_id,
+                  situation_id=situation_id,
+                  npc_id=npc_id)
+        
+        return jsonify({
+            'status': 'ok',
+            **result
+        })
+        
+    except ValueError as e:
+        log_event('warning', 'npc.dialogue_not_found', error=str(e))
+        return jsonify({
+            'status': 'error',
+            'message': f'Situation not found: {str(e)}'
+        }), 404
+        
+    except Exception as e:
+        app.logger.exception('npc dialogue failed')
+        log_event('error', 'npc.dialogue_exception', error=str(e))
+        return jsonify({
+            'status': 'error',
+            'error': str(e)
+        }), 500
+
+@app.route('/episode/affection', methods=['POST'])
+def update_affection():
+    """
+    호감도 업데이트
+    
+    Request:
+        {
+            "player_id": "player_001",
+            "change": 10.0
+        }
+    
+    Response:
+        {
+            "status": "ok",
+            "affection": 60.0,
+            "change": 10.0,
+            "turn_count": 1
+        }
+    """
+    try:
+        data = request.get_json() or {}
+        player_id = data.get('player_id', 'default_player')
+        change = float(data.get('change', 0.0))
+        
+        manager = get_episode_manager()
+        result = manager.update_affection(player_id, change)
+        
+        if result is None:
+            return jsonify({
+                'status': 'error',
+                'message': 'Player not found'
+            }), 404
+        
+        log_event('info', 'episode.affection_updated',
+                  player_id=player_id,
+                  change=change,
+                  new_affection=result['affection'])
+        
+        return jsonify({
+            'status': 'ok',
+            **result
+        })
+        
+    except Exception as e:
+        app.logger.exception('update affection failed')
+        log_event('error', 'episode.affection_exception', error=str(e))
+        return jsonify({
+            'status': 'error',
+            'error': str(e)
+        }), 500
+
+@app.route('/episode/chaos', methods=['POST'])
+def add_chaos():
+    """
+    Chaos 레벨 추가
+    
+    Request:
+        {
+            "player_id": "player_001",
+            "amount": 0.3
+        }
+    
+    Response:
+        {
+            "status": "ok",
+            "chaos_level": 0.3,
+            "change": 0.3,
+            "is_max": false
+        }
+    """
+    try:
+        data = request.get_json() or {}
+        player_id = data.get('player_id', 'default_player')
+        amount = float(data.get('amount', 0.0))
+        
+        manager = get_episode_manager()
+        result = manager.add_chaos(player_id, amount)
+        
+        if result is None:
+            return jsonify({
+                'status': 'error',
+                'message': 'Player not found'
+            }), 404
+        
+        log_event('info', 'episode.chaos_added',
+                  player_id=player_id,
+                  amount=amount,
+                  new_chaos=result['chaos_level'])
+        
+        return jsonify({
+            'status': 'ok',
+            **result
+        })
+        
+    except Exception as e:
+        app.logger.exception('add chaos failed')
+        log_event('error', 'episode.chaos_exception', error=str(e))
+        return jsonify({
+            'status': 'error',
+            'error': str(e)
+        }), 500
+
+@app.route('/episode/history', methods=['GET'])
+def dialogue_history():
+    """
+    대화 기록 조회
+    
+    Query Params:
+        player_id: 플레이어 ID
+        limit: 최대 개수 (default: 20)
+    
+    Response:
+        {
+            "status": "ok",
+            "history": [...]
+        }
+    """
+    try:
+        player_id = request.args.get('player_id', 'default_player')
+        limit = int(request.args.get('limit', 20))
+        
+        manager = get_episode_manager()
+        history = manager.get_dialogue_history(player_id, limit)
+        
+        return jsonify({
+            'status': 'ok',
+            'history': history,
+            'count': len(history)
+        })
+        
+    except Exception as e:
+        app.logger.exception('dialogue history failed')
+        log_event('error', 'episode.history_exception', error=str(e))
+        return jsonify({
+            'status': 'error',
+            'error': str(e)
+        }), 500
 
 if __name__ == '__main__':
     # enable more verbose logging for debugging

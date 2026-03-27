@@ -1,0 +1,230 @@
+{
+  "episode_id": 1,
+  "episode_title": "달라진 점 찾기의 미궁",
+  "description": "주말 데이트, 여자친구가 무언가 달라졌다고 묻는다. 무엇이 달라졌을까?",
+  "difficulty": "normal",
+  "target_affection": 100,
+  "initial_affection": 50,
+  "max_turns": 10,
+  
+  "situations": [
+    {
+      "situation_id": "sit_001",
+      "trigger": "episode_start",
+      "phase": "opening",
+      
+      "context": {
+        "location": "카페",
+        "location_detail": "창가 자리",
+        "time": "오후 3시",
+        "day": "토요일",
+        "weather": "맑음",
+        "npc_state": "긴장된 듯 함",
+        "npc_activity": "창밖을 바라보며 고민 중"
+      },
+      
+      "situation_text": "주말 오후, 카페 창가 자리.\n\n여자친구가 창밖을 바라보며 무언가 고민하는 듯하다.\n평소와는 다른 분위기가 감돈다.\n\n무슨 일이 있는 걸까?",
+      
+      "npc_dialogue": {
+        "text": "나 오늘 뭐 달라진 거 없어?",
+        "emotion": "curiosity",
+        "tone": "약간 긴장된",
+        "gesture": "당황한 듯 표정",
+        "eye_contact": "잠시 쳐다보고 시선 피함"
+      },
+      
+      "expected_keywords": ["귀걸이", "머리", "헤어", "옷", "블라우스", "화장", "메이크업", "네일", "향수", "액세서리"],
+      "correct_answer": "귀걸이",
+      
+      "hint_text": "그녀의 얼굴 주변을 자세히 보라...",
+      
+      "success_threshold": 0.70,
+      "mood_change": {
+        "success": 10,
+        "neutral": 0,
+        "fail": -5,
+        "silence": -10,
+        "insult": -30
+      }
+    },
+    
+    {
+      "situation_id": "sit_002",
+      "trigger": "first_response_success",
+      "phase": "developing",
+      
+      "context": {
+        "location": "카페",
+        "location_detail": "창가 자리",
+        "time": "오후 3시 10분",
+        "day": "토요일",
+        "weather": "맑음",
+        "npc_state": "기뻐함",
+        "npc_activity": "얼굴을 붉히며 수줍어함"
+      },
+      
+      "situation_text": "그녀의 얼굴에 환한 미소가 번진다.\n\n기대에 찬 눈빛으로 당신을 바라본다.",
+      
+      "npc_dialogue": {
+        "text": "맞아! 새 귀걸이 샀어. 예뻐?",
+        "emotion": "joy",
+        "tone": "설레는",
+        "gesture": "귀걸이를 만지작거림",
+        "eye_contact": "기대에 찬 눈빛"
+      },
+      
+      "expected_keywords": ["예뻐", "이쁘", "어울려", "좋", "예쁘", "귀엽", "센스"],
+      
+      "hint_text": "그녀의 기대에 부응하는 말을 해보자.",
+      
+      "success_threshold": 0.65,
+      "mood_change": {
+        "success": 15,
+        "neutral": 0,
+        "fail": -5,
+        "silence": -15
+      }
+    },
+    
+    {
+      "situation_id": "sit_003",
+      "trigger": "first_response_fail",
+      "phase": "developing",
+      
+      "context": {
+        "location": "카페",
+        "location_detail": "창가 자리",
+        "time": "오후 3시 10분",
+        "day": "토요일",
+        "weather": "맑음",
+        "npc_state": "실망함",
+        "npc_activity": "고개를 숙이며 표정이 어두워짐"
+      },
+      
+      "situation_text": "그녀의 표정이 순식간에 어두워진다.\n\n실망한 듯 고개를 숙인다.",
+      
+      "npc_dialogue": {
+        "text": "...아, 그래. 모르겠지...",
+        "emotion": "disappointment",
+        "tone": "쓸쓸한",
+        "gesture": "한숨을 쉬며 창밖을 바라봄",
+        "eye_contact": "피함"
+      },
+      
+      "expected_keywords": ["미안", "잘", "못", "다시", "귀걸이"],
+      
+      "hint_text": "상황을 만회하려면 진심 어린 사과와 관찰이 필요하다.",
+      
+      "success_threshold": 0.75,
+      "mood_change": {
+        "success": 10,
+        "neutral": -5,
+        "fail": -10,
+        "silence": -20
+      }
+    },
+    
+    {
+      "situation_id": "sit_004",
+      "trigger": "affection_high",
+      "phase": "climax",
+      
+      "context": {
+        "location": "카페",
+        "location_detail": "창가 자리",
+        "time": "오후 3시 30분",
+        "day": "토요일",
+        "weather": "맑음, 석양 시작",
+        "npc_state": "행복함",
+        "npc_activity": "당신의 손을 잡음"
+      },
+      
+      "situation_text": "따뜻한 햇살이 카페로 스며든다.\n\n그녀가 당신의 손을 살며시 잡는다.",
+      
+      "npc_dialogue": {
+        "text": "오늘... 정말 좋아. 우리 앞으로도 이렇게 지내자.",
+        "emotion": "love",
+        "tone": "다정한",
+        "gesture": "손을 잡고 눈을 마주침",
+        "eye_contact": "사랑스러운 눈빛"
+      },
+      
+      "expected_keywords": ["사랑", "좋", "앞으로", "함께", "약속", "영원"],
+      
+      "hint_text": "그녀의 마음에 화답하는 진심 어린 말을 건네보자.",
+      
+      "success_threshold": 0.60,
+      "mood_change": {
+        "success": 20,
+        "neutral": 5,
+        "fail": -5,
+        "silence": -10
+      }
+    },
+    
+    {
+      "situation_id": "sit_005",
+      "trigger": "affection_low",
+      "phase": "crisis",
+      
+      "context": {
+        "location": "카페",
+        "location_detail": "창가 자리",
+        "time": "오후 3시 30분",
+        "day": "토요일",
+        "weather": "흐려짐",
+        "npc_state": "화남/슬픔",
+        "npc_activity": "자리에서 일어남"
+      },
+      
+      "situation_text": "분위기가 무겁게 내려앉는다.\n\n그녀가 자리에서 일어난다.",
+      
+      "npc_dialogue": {
+        "text": "오늘... 그만 일어날게. 생각 좀 정리하고 싶어.",
+        "emotion": "sadness",
+        "tone": "차분하지만 떨리는",
+        "gesture": "가방을 챙기며 일어섬",
+        "eye_contact": "피함"
+      },
+      
+      "expected_keywords": ["기다려", "미안", "잘못", "다시", "기회"],
+      
+      "hint_text": "마지막 기회다. 진심을 전하라.",
+      
+      "success_threshold": 0.80,
+      "mood_change": {
+        "success": 15,
+        "neutral": -10,
+        "fail": -20,
+        "silence": -30
+      }
+    }
+  ],
+  
+  "insult_keywords": [
+    "살", "뚱", "못생", "징그", "냄새", "더럽", "짜증", "꺼져", "헤어져",
+    "별로", "그만", "지겹", "지루", "재수"
+  ],
+  
+  "silence_penalty": 0.5,
+  "chaos_threshold": 1.0,
+  
+  "rewards": {
+    "clear": {
+      "title": "달콤한 데이트",
+      "description": "그녀와의 데이트가 달콤하게 마무리되었다.",
+      "affection_bonus": 20
+    },
+    "fail": {
+      "title": "어색한 침묵",
+      "description": "데이트가 어색하게 끝났다. 다음에 더 잘해보자.",
+      "affection_penalty": -10
+    }
+  },
+  
+  "metadata": {
+    "created_at": "2026-03-27",
+    "version": "1.0",
+    "author": "Cascade AI"
+  }
+}

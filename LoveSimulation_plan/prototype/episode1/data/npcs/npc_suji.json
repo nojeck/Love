@@ -1,0 +1,87 @@
+{
+  "npc_id": "suji",
+  "name": "수진",
+  "age": 24,
+  "occupation": "대학생",
+  
+  "personality": {
+    "type": "romantic",
+    "traits": ["감성적", "직관적", "배려심 깊음", "조금 예민함"],
+    "mbti": "INFJ",
+    "speech_style": "부드러운 존댓말"
+  },
+  
+  "appearance": {
+    "hair": "검은 긴 생머리",
+    "eyes": "큰 눈",
+    "style": "여성스러운 캐주얼"
+  },
+  
+  "base_mood": 0.5,
+  "mood_range": [0.0, 1.0],
+  
+  "preferences": {
+    "liked_topics": ["사랑", "미래", "추억", "로맨스", "음악", "영화"],
+    "disliked_topics": ["외모 비교", "무시", "다른 여자 언급", "무례한 말"],
+    "favorite_things": ["카페 데이트", "선물", "칭찬", "손 편지"]
+  },
+  
+  "speech_patterns": {
+    "happy": ["~해서 좋아!", "정말?", "기뻐~", "고마워!"],
+    "love": ["사랑해", "좋아해", "우리...", "항상..."],
+    "sad": ["...", "아...", "그래...", "몰라..."],
+    "angry": ["진짜야?", "화나", "이상해...", "그만해"],
+    "curious": ["있지", "근데", "저기...", "나 말이야"]
+  },
+  
+  "emotional_responses": {
+    "high_affection": {
+      "threshold": 80,
+      "behavior": "다정하고 애교 많아짐",
+      "dialogue_style": "설레는, 수줍은"
+    },
+    "medium_affection": {
+      "threshold": 50,
+      "behavior": "편안하고 자연스러움",
+      "dialogue_style": "일반적인, 친근한"
+    },
+    "low_affection": {
+      "threshold": 20,
+      "behavior": "거리를 두려 함",
+      "dialogue_style": "차가운, 예민한"
+    },
+    "critical_affection": {
+      "threshold": 10,
+      "behavior": "관계 정리 고민",
+      "dialogue_style": "냉정한, 슬픈"
+    }
+  },
+  
+  "chaos_triggers": {
+    "insult": 0.6,
+    "repeated_offtopic": 0.3,
+    "silence": 0.5,
+    "ignore_hints": 0.2
+  },
+  
+  "portrait": {
+    "default": "suji_default.png",
+    "happy": "suji_happy.png",
+    "sad": "suji_sad.png",
+    "angry": "suji_angry.png",
+    "love": "suji_love.png",
+    "curious": "suji_curious.png"
+  },
+  
+  "voice": {
+    "tts_provider": "naver_clova",
+    "voice_id": "nara",
+    "speed": 1.0,
+    "pitch": 1.0
+  },
+  
+  "metadata": {
+    "created_at": "2026-03-27",
+    "version": "1.0"
+  }
+}
