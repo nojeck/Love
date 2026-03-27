@@ -20,6 +20,9 @@ public class LoveConversationUI : MonoBehaviour
     public TMP_Text emotionText;
     public TMP_Text contextText;
     
+    [Header("Affection UI (Phase 7.2)")]
+    public AffectionUIController affectionUI;
+    
     [Header("Calibration UI")]
     public Button calibrateButton;
     public TMP_Text calibrationStatusText;
@@ -200,6 +203,14 @@ public class LoveConversationUI : MonoBehaviour
         // Check calibration status
         StartCoroutine(CheckCalibrationStatus());
         
+        // Initialize affection UI
+        if (affectionUI != null)
+        {
+            affectionUI.SetPlayerId(currentSessionId);
+            affectionUI.OnAffectionMax += OnAffectionMax;
+            affectionUI.OnAffectionMin += OnAffectionMin;
+        }
+        
         UpdateStatus("Ready");
         UpdateConversationDisplay();
     }
@@ -209,6 +220,13 @@ public class LoveConversationUI : MonoBehaviour
         if (startButton != null) startButton.onClick.RemoveListener(OnStartClicked);
         if (stopButton != null) stopButton.onClick.RemoveListener(OnStopClicked);
         if (calibrateButton != null) calibrateButton.onClick.RemoveListener(OnCalibrateClicked);
+        
+        // Unregister affection events
+        if (affectionUI != null)
+        {
+            affectionUI.OnAffectionMax -= OnAffectionMax;
+            affectionUI.OnAffectionMin -= OnAffectionMin;
+        }
     }
 
     private void OnStartClicked()
@@ -380,6 +398,12 @@ public class LoveConversationUI : MonoBehaviour
             npcResponseText.text = feedback.feedback;
         }
         
+        // Update affection UI (Phase 7.2)
+        if (affectionUI != null)
+        {
+            StartCoroutine(affectionUI.SendAffectionUpdate(feedback.mood_change));
+        }
+        
         // Add to conversation history
         var turn = new ConversationTurn
         {
@@ -416,6 +440,26 @@ public class LoveConversationUI : MonoBehaviour
         
         conversationDisplayText.text = display;
     }
+    
+    #region Affection Events (Phase 7.2)
+    
+    private void OnAffectionMax()
+    {
+        // Clear! 호감도 100 달성
+        Debug.Log("[LoveConversationUI] Episode Clear! Affection reached 100!");
+        UpdateStatus("★ CLEAR! 호감도 100 달성! ★");
+        // TODO: Clear 팝업 표시
+    }
+    
+    private void OnAffectionMin()
+    {
+        // Fail... 호감도 0
+        Debug.Log("[LoveConversationUI] Episode Fail... Affection dropped to 0");
+        UpdateStatus("✗ FAIL... 호감도가 바닥났다...");
+        // TODO: Fail 팝업 표시 + 회귀 버튼
+    }
+    
+    #endregion
 
     private void UpdateStatus(string text)
     {

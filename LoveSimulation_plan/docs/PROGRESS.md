@@ -147,7 +147,9 @@ context = history.get_context('player_001')
   - 현재 호감도 수치 UI 표시 (0-100)
   - 유저 발화 시 호감도 변화 애니메이션
   - 한마디마다 얼마나 유동하는지 시각화
-- **상태**: ⏳ 계획 중
+- **설계 문서**: `PHASE_7_2_AFFECTION_UI_DESIGN.md` ✅
+- **구현 파일**: `Assets/Scripts/AffectionUIController.cs` ✅
+- **상태**: 🔄 구현 완료, 테스트 대기
 
 #### 7.3 타임 리미트 & 자동 녹음 시스템
 - **목표**: 실제 상황 같은 Live 느낌 제공
