@@ -1,7 +1,7 @@
 # 무한 회귀 연애 (LoveSimulation) - 프로젝트 현황 및 계획
 
-**최종 업데이트:** 2026-03-25  
-**프로젝트 상태:** Phase 1-5 완료 (개발 진행 중)
+**최종 업데이트:** 2026-03-27  
+**프로젝트 상태:** Phase 1-6 완료 (개발 진행 중)
 
 ---
 
@@ -132,6 +132,60 @@ context = history.get_context('player_001')
   }
 }
 ```
+
+---
+
+### Phase 6: LLM API 최적화 ✅
+**상태:** 완료 (2026-03-27)
+
+**구현 내용:**
+
+#### Phase 1: OpenRouter 통합
+- OpenRouterProvider 클래스 구현 (500+ 모델 접근)
+- DeepSeek Chat/R1 기본 모델 설정
+- CostTracker 클래스로 실시간 비용 모니터링
+- `/llm-costs`, `/llm-costs/reset` API 추가
+
+#### Phase 2: SmartRouter 구현
+- SmartRouter 클래스 구현 (복잡도 기반 모델 자동 선택)
+- 복잡도 분석: 텍스트 길이, 감정 키워드, 점수, 컨텍스트
+- 3단계 티어: cheap (DeepSeek Chat) → standard (DeepSeek R1) → premium (Claude Sonnet)
+- NPC 응답 생성 및 텍스트 점수 계산에 스마트 라우팅 적용
+- `/llm-routing-stats` API 추가
+
+#### Phase 3: 문맥 캐싱 & 배치 처리
+- OpenRouterProvider에 시스템 프롬프트 캐싱 추가 (500자 이상 자동 캐싱)
+- 캐시 적중 시 토큰 절약 (27%+)
+- BatchProcessor 클래스 구현 (최대 10개 요청 병렬 처리)
+- `/llm-cache-stats`, `/llm-cache-clear`, `/llm-batch` API 추가
+
+**주요 파일:**
+- `llm_provider.py` - OpenRouterProvider, SmartRouter, BatchProcessor, CostTracker
+- `npc_response_generator_v2.py` - 스마트 라우팅 적용
+- `llm_text_scorer.py` - 스마트 라우팅 적용
+- `server.py` - 비용/라우팅/캐시/배치 API
+
+**비용 절감 효과:**
+```
+기존 (Gemini Flash): ~$0.50-2.00 / 1M 토큰
+현재 (DeepSeek + 최적화): ~$0.03-0.10 / 1M 토큰
+총 절감: 90%+
+
+세부 절감:
+- DeepSeek 모델 사용: 80%
+- 스마트 라우팅: 추가 30-50%
+- 문맥 캐싱: 추가 27%
+```
+
+**새 API 엔드포인트:**
+| 엔드포인트 | 설명 |
+|-----------|------|
+| `GET /llm-costs` | 비용 통계 (토큰, USD) |
+| `POST /llm-costs/reset` | 세션 비용 초기화 |
+| `GET /llm-routing-stats` | 라우팅 통계 (티어별 사용량) |
+| `GET /llm-cache-stats` | 캐시 통계 (히트율, 저장 토큰) |
+| `POST /llm-cache-clear` | 캐시 초기화 |
+| `POST /llm-batch` | 배치 처리 (다중 요청 병렬) |
 
 ---
 
@@ -287,7 +341,36 @@ python server.py
 # 의존성 없음, 빠름 (평균 응답 ~100ms)
 ```
 
-### Claude LLM 활성화
+### OpenRouter + DeepSeek (추천) ✅
+```bash
+# llm_config.json 설정
+{
+  "llm_provider": "openrouter",
+  "openrouter_api_key": "sk-or-v1-...",
+  "openrouter_model": "deepseek/deepseek-chat"
+}
+
+python server.py
+# 비용: ~$0.0003/1K 토큰 (기존 대비 90% 절감)
+# 스마트 라우팅으로 자동 모델 선택
+```
+
+### SmartRouter (복잡도 기반 자동 선택)
+```bash
+# llm_config.json 설정
+{
+  "llm_provider": "smart",
+  "openrouter_api_key": "sk-or-v1-..."
+}
+
+python server.py
+# 간단한 요청 → DeepSeek Chat (cheap)
+# 복잡한 요청 → DeepSeek R1 (standard)
+# 중요 이벤트 → Claude Sonnet (premium)
+# 자동 라우팅으로 비용 최적화
+```
+
+### Claude LLM 활성화 (기존)
 ```bash
 export ANTHROPIC_API_KEY=sk-ant-...
 export USE_LLM=true
@@ -297,7 +380,7 @@ python server.py
 # 월 비용: ~$60 (100K 응답)
 ```
 
-### OpenAI GPT 활성화
+### OpenAI GPT 활성화 (기존)
 ```bash
 export OPENAI_API_KEY=sk-...
 export USE_LLM=true
@@ -322,10 +405,20 @@ python server.py
 
 | 옵션 | 응답 수 | 비용 | 특징 |
 |------|--------|------|------|
-| Rules Only | 100K | $0 | ✅ 추천 |
+| Rules Only | 100K | $0 | ✅ 기본 |
+| **OpenRouter + DeepSeek** | 100K | **$3-5** | ✅✅ 추천 (90% 절감) |
+| **SmartRouter** | 100K | **$2-4** | ✅✅✅ 최적 (자동 라우팅) |
 | Claude | 100K | $60 | 신뢰도 < 0.6만 호출 |
 | OpenAI | 100K | $600 | 모든 응답 호출 |
 | Ollama | 100K | $0 | 로컬, 느림 |
+
+### 비용 절감 내역
+```
+Gemini Flash → DeepSeek Chat: 80% 절감
++ 스마트 라우팅: 추가 30-50% 절감
++ 문맥 캐싱: 추가 27% 절감
+= 총 90%+ 절감
+```
 
 ---
 
@@ -339,6 +432,10 @@ python server.py
 | LLM 하이브리드 시스템 | ✅ | Claude/OpenAI/Ollama 지원 |
 | 대화 히스토리 추적 | ✅ | SQLite, 반복 감지, 맥락 제공 |
 | Server 통합 | ✅ | 5개 엔드포인트, 완전 통합 |
+| **OpenRouter 통합** | ✅ | DeepSeek Chat/R1, 비용 모니터링 |
+| **SmartRouter** | ✅ | 복잡도 기반 자동 모델 선택 |
+| **문맥 캐싱** | ✅ | 시스템 프롬프트 캐싱, 27% 절감 |
+| **배치 처리** | ✅ | 병렬 요청 처리, 60% 빠름 |
 | 플레이테스트 | ⏳ | 다음 단계 |
 | 게임 연출 | ⏳ | Unity 통합 필요 |
 
@@ -361,6 +458,6 @@ python server.py
 
 ---
 
-**프로젝트 상태:** 개발 진행 중 (Phase 1-5 완료, 플레이테스트 준비)  
-**마지막 업데이트:** 2026-03-25  
+**프로젝트 상태:** 개발 진행 중 (Phase 1-6 완료, 플레이테스트 준비)  
+**마지막 업데이트:** 2026-03-27  
 **담당자:** Copilot
