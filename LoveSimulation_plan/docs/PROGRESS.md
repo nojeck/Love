@@ -131,7 +131,7 @@ context = history.get_context('player_001')
 
 ### Phase 7: 게임플레이 몰입 시스템 (계획 중)
 
-#### 7.1 NPC 주도 대화 시스템
+### Phase 7.1 NPC 주도 대화 시스템 ✅
 - **목표**: NPC가 먼저 말을 걸어 몰입감 향상
 - **구현 내용**:
   - 에피소드별 상황 설정 텍스트 출력
@@ -139,46 +139,45 @@ context = history.get_context('player_001')
   - 미연시 스타일 다이얼로그 창 UI
   - 상황 예시: "카페에서 데이트 중, 여자친구가 무언가 고민하는 듯하다..."
 - **설계 문서**: `PHASE_7_1_NPC_DIALOGUE_DESIGN.md` ✅
-- **상태**: 🔄 설계 완료, 구현 대기
+- **구현 파일**: `episode_manager.py`, `episode_1.json`, `npc_suji.json` ✅
+- **상태**: ✅ 완료
 
-#### 7.2 호감도 UI 시스템
+### Phase 7.2 호감도 UI 시스템 ✅
 - **목표**: 실시간 호감도 변화 피드백
 - **구현 내용**:
   - 현재 호감도 수치 UI 표시 (0-100)
   - 유저 발화 시 호감도 변화 애니메이션
   - 한마디마다 얼마나 유동하는지 시각화
+  - 5단계 색상/이모지 변화 (사랑/호감/보통/냉소/위험)
 - **설계 문서**: `PHASE_7_2_AFFECTION_UI_DESIGN.md` ✅
 - **구현 파일**: `Assets/Scripts/AffectionUIController.cs` ✅
-- **상태**: 🔄 구현 완료, 테스트 대기
+- **상태**: ✅ 완료
 
-#### 7.3 타임 리미트 & 자동 녹음 시스템
+### Phase 7.3 타임 리미트 & 자동 녹음 시스템 ✅
 - **목표**: 실제 상황 같은 Live 느낌 제공
 - **구현 내용**:
   - NPC 말 시작 시 자동 녹음 모드 ON
   - 첫 마디 제한: 10초 (초과 시 silence 반환)
   - 녹음 최대 시간: 30초 (초과 시 "너무 많이 말함" 반응)
-  - 전체 절차 자동 진행:
-    ```
-    에피소드 시작 → 상황 설명 텍스트 → NPC 대화 시작 
-    → 데이트 모드 ON → 자동 녹음 시작 → 유저 응답 → 평가
-    ```
+  - 실시간 음성 감지 (RMS 기반)
+  - 침묵 자동 종료 (2초 연속 침묵 시)
 - **설계 문서**: `PHASE_7_3_AUTO_RECORDING_DESIGN.md` ✅
 - **구현 파일**: `Assets/Scripts/AutoRecordingController.cs` ✅
-- **상태**: 🔄 구현 완료, 테스트 대기
+- **상태**: ✅ 완료
 
-#### 7.4 클리어/실패 & 회귀 시스템
+### Phase 7.4 클리어/실패 & 회귀 시스템 ✅
 - **목표**: 명확한 목표와 피드백 제공
 - **구현 내용**:
-  - 호감도 100점 이상: Clear 팝업
-  - 호감도 0점 이하: 실패 팝업
-  - 실패 시 대화 분석 피드백 출력
+  - 호감도 100점 이상: Clear 팝업 (통계 표시)
+  - 호감도 0점 이하: 실패 팝업 + 대화 분석 피드백
   - '회귀하기' 버튼 → 에피소드 처음으로 이동
+  - 대화 분석: 침묵/부정반응/부정감정 비율 계산
 - **설계 문서**: `PHASE_7_4_RESULT_POPUP_DESIGN.md` ✅
 - **구현 파일**: 
   - `Assets/Scripts/ResultPopupController.cs` ✅
   - `episode_manager.py` (revert_episode, analyze_dialogue) ✅
   - `server.py` (/episode/revert, /episode/analyze) ✅
-- **상태**: 🔄 구현 완료, 테스트 대기
+- **상태**: ✅ 완료
 
 #### 7.5 NPC TTS 시스템
 - **목표**: NPC 음성 출력으로 몰입감 강화

@@ -1,7 +1,7 @@
 # 무한 회귀 연애 (LoveSimulation) - 프로젝트 현황 및 계획
 
 **최종 업데이트:** 2026-03-27  
-**프로젝트 상태:** Phase 1-6 완료 (개발 진행 중)
+**프로젝트 상태:** Phase 1-7 완료 (Phase 7.5 계획 중)
 
 ---
 
@@ -239,49 +239,85 @@ context = history.get_context('player_001')
 | 기준선 계산 | O(N) | N개 메트릭 |
 | **총 응답 시간** | **~100ms** | 규칙만 사용 시 |
 
----
+### Phase 7: 게임플레이 몰입 시스템 ✅
+**상태:** 완료 (2026-03-27)
 
-## 🚀 다음 단계 (우선 순위)
-
-### Phase 7: 게임플레이 몰입 시스템 (계획 중)
-
-#### 7.1 NPC 주도 대화 시스템 ⏳
+#### Phase 7.1: NPC 주도 대화 시스템 ✅
 - 에피소드별 상황 설정 텍스트 출력
 - NPC(여자친구)가 먼저 대화 시작
-- 미연시 스타일 다이얼로그 창 UI
-- 상황 예시: "카페에서 데이트 중..."
+- 에피소드 JSON 데이터 구조 설계
+- EpisodeManager 클래스 구현 (SQLite 기반)
 
-#### 7.2 호감도 UI 시스템 ⏳
-- 실시간 호감도 수치 UI 표시 (0-100)
+**주요 파일:**
+- `episode_manager.py` - 에피소드 관리
+- `episode_1.json` - 에피소드 데이터
+- `npc_suji.json` - NPC 데이터
+- `PHASE_7_1_NPC_DIALOGUE_DESIGN.md` - 설계 문서
+
+---
+
+#### Phase 7.2: 호감도 UI 시스템 ✅
+**상태:** 완료 (2026-03-27)
+
+**구현 내용:**
+- 0-100 호감도 수치 UI 표시
 - 유저 발화 시 호감도 변화 애니메이션
-- 한마디마다 얼마나 유동하는지 시각화
+- 5단계 색상/이모지 변화 (사랑/호감/보통/냉소/위험)
+- 서버 연동 (/episode/status, /episode/affection)
 
-#### 7.3 타임 리미트 & 자동 녹음 시스템 ⏳
-- NPC 말 시작 시 자동 녹음 모드 ON
-- 첫 마디 제한: 10초 (초과 시 silence)
-- 녹음 최대 시간: 30초 (초과 시 "너무 많이 말함" 반응)
-- 절차 자동 진행: 에피소드 시작 → 상황 설명 → NPC 대화 → 자동 녹음
+**주요 파일:**
+- `Assets/Scripts/AffectionUIController.cs` - Unity 호감도 UI
+- `PHASE_7_2_AFFECTION_UI_DESIGN.md` - 설계 문서
 
-#### 7.4 클리어/실패 & 회귀 시스템 ⏳
-- 호감도 100점 이상: Clear 팝업
-- 호감도 0점 이하: 실패 팝업 + 대화 분석 피드백
-- '회귀하기' 버튼 → 에피소드 처음으로 이동
+---
 
-#### 7.5 NPC TTS 시스템 ⏳
-- NPC 대사 TTS 변환
-- 감정별 톤/속도 조절
-- 한국어 음성 합성 API 연동
+#### Phase 7.3: 타임 리미트 & 자동 녹음 시스템 ✅
+**상태:** 완료 (2026-03-27)
+
+**구현 내용:**
+- 첫 마디 10초 타임 리미트
+- 최대 30초 녹음 제한
+- 실시간 음성 감지 (RMS 기반)
+- 침묵 자동 종료 (2초 연속 침묵)
+- 상태 머신 (Idle/WaitingVoice/Recording/Processing)
+
+**주요 파일:**
+- `Assets/Scripts/AutoRecordingController.cs` - 자동 녹음 컨트롤러
+- `PHASE_7_3_AUTO_RECORDING_DESIGN.md` - 설계 문서
+
+---
+
+#### Phase 7.4: 클리어/실패 & 회귀 시스템 ✅
+**상태:** 완료 (2026-03-27)
+
+**구현 내용:**
+- Clear 팝업: 호감도 100 달성 시 통계 표시
+- Fail 팝업: 호감도 0 도달 시 대화 분석 피드백
+- 회귀(Revert) 기능: 에피소드 처음으로 이동
+- 대화 분석: 침묵/부정반응/부정감정 비율 계산
+
+**주요 파일:**
+- `Assets/Scripts/ResultPopupController.cs` - 결과 팝업 UI
+- `episode_manager.py` - revert_episode, analyze_dialogue 메서드
+- `server.py` - /episode/revert, /episode/analyze API
+- `PHASE_7_4_RESULT_POPUP_DESIGN.md` - 설계 문서
+
+**새 API 엔드포인트:**
+| 엔드포인트 | 설명 |
+|-----------|------|
+| `POST /episode/revert` | 에피소드 회귀 (초기화) |
+| `GET /episode/analyze` | 대화 분석 |
 
 ---
 
 ### 즉시 (이번주)
-1. **Server 통합 테스트**
-   - `/analyze` + `/feedback` 엔드투엔드 테스트
-   - 반복 감지 시 LLM 강제 호출 검증
+1. **Unity 통합 테스트**
+   - AffectionUI, AutoRecording, ResultPopup 연동 테스트
+   - 에피소드 전체 플로우 검증
 
-2. **NPC 반응 조정**
-   - 감정 호에 따른 NPC 기분 변화
-   - 반복 감지 시 피드백 다양화
+2. **NPC TTS 시스템** (Phase 7.5)
+   - 한국어 TTS API 연동
+   - 감정별 톤/속도 조절
 
 ### 단기 (이번달)
 1. **플레이테스트**
@@ -467,10 +503,10 @@ Gemini Flash → DeepSeek Chat: 80% 절감
 | **SmartRouter** | ✅ | 복잡도 기반 자동 모델 선택 |
 | **문맥 캐싱** | ✅ | 시스템 프롬프트 캐싱, 27% 절감 |
 | **배치 처리** | ✅ | 병렬 요청 처리, 60% 빠름 |
-| **Phase 7.1 NPC 주도 대화** | ⏳ | 계획 중 |
-| **Phase 7.2 호감도 UI** | ⏳ | 계획 중 |
-| **Phase 7.3 타임 리미트** | ⏳ | 계획 중 |
-| **Phase 7.4 클리어/실패** | ⏳ | 계획 중 |
+| **Phase 7.1 NPC 주도 대화** | ✅ | 완료 |
+| **Phase 7.2 호감도 UI** | ✅ | 완료 |
+| **Phase 7.3 타임 리미트** | ✅ | 완료 |
+| **Phase 7.4 클리어/실패** | ✅ | 완료 |
 | **Phase 7.5 NPC TTS** | ⏳ | 계획 중 |
 | 플레이테스트 | ⏳ | 다음 단계 |
 | 게임 연출 | ⏳ | Unity 통합 필요 |
@@ -494,6 +530,6 @@ Gemini Flash → DeepSeek Chat: 80% 절감
 
 ---
 
-**프로젝트 상태:** 개발 진행 중 (Phase 1-6 완료, 플레이테스트 준비)  
+**프로젝트 상태:** 개발 진행 중 (Phase 1-7 완료, Phase 7.5 계획 중)  
 **마지막 업데이트:** 2026-03-27  
 **담당자:** Copilot
