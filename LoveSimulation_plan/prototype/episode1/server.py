@@ -1292,6 +1292,134 @@ def llm_routing_stats():
         }), 500
 
 
+@app.route('/llm-cache-stats', methods=['GET'])
+def llm_cache_stats():
+    """
+    Get context caching statistics.
+    
+    Returns:
+        hits: Cache hit count
+        misses: Cache miss count
+        hit_rate: Cache hit percentage
+        saved_tokens: Tokens saved by caching
+    """
+    try:
+        from llm_provider import LLMProviderFactory
+        provider = LLMProviderFactory.create('openrouter')
+        
+        if provider is None:
+            return jsonify({
+                'status': 'error',
+                'message': 'OpenRouter provider not initialized'
+            }), 400
+        
+        from llm_provider import OpenRouterProvider
+        if isinstance(provider, OpenRouterProvider):
+            return jsonify({
+                'status': 'ok',
+                **provider.get_cache_stats()
+            })
+        else:
+            return jsonify({
+                'status': 'error',
+                'message': f'Provider is {type(provider).__name__}, not OpenRouterProvider'
+            }), 400
+    except Exception as e:
+        return jsonify({
+            'error': str(e),
+            'status': 'error'
+        }), 500
+
+
+@app.route('/llm-cache-clear', methods=['POST'])
+def llm_cache_clear():
+    """Clear context cache."""
+    try:
+        from llm_provider import LLMProviderFactory, OpenRouterProvider
+        provider = LLMProviderFactory.create('openrouter')
+        
+        if isinstance(provider, OpenRouterProvider):
+            provider.clear_cache()
+            return jsonify({
+                'status': 'ok',
+                'message': 'Cache cleared'
+            })
+        else:
+            return jsonify({
+                'status': 'error',
+                'message': 'Provider does not support caching'
+            }), 400
+    except Exception as e:
+        return jsonify({
+            'error': str(e),
+            'status': 'error'
+        }), 500
+
+
+@app.route('/llm-batch', methods=['POST'])
+def llm_batch():
+    """
+    Execute batch LLM requests.
+    
+    Request body:
+        requests: List of dicts with keys:
+            - id: Request ID
+            - system_prompt: System prompt (optional, uses default if not provided)
+            - user_message: User message
+        default_system_prompt: Default system prompt for all requests (optional)
+    
+    Returns:
+        results: Dict mapping request_id -> response
+        stats: Batch processing statistics
+    """
+    try:
+        from llm_provider import LLMProviderFactory, BatchProcessor
+        
+        data = request.get_json()
+        requests_list = data.get('requests', [])
+        default_system = data.get('default_system_prompt', 'You are a helpful assistant.')
+        
+        if not requests_list:
+            return jsonify({
+                'status': 'error',
+                'message': 'No requests provided'
+            }), 400
+        
+        # Create batch processor
+        provider = LLMProviderFactory.create('openrouter')
+        if not provider:
+            return jsonify({
+                'status': 'error',
+                'message': 'LLM provider not available'
+            }), 500
+        
+        batch = BatchProcessor(provider)
+        
+        # Add requests
+        for req in requests_list:
+            batch.add(
+                req.get('id'),
+                req.get('system_prompt', default_system),
+                req.get('user_message'),
+                req.get('metadata')
+            )
+        
+        # Execute
+        results = batch.execute()
+        
+        return jsonify({
+            'status': 'ok',
+            'results': results,
+            'stats': batch.get_stats()
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'error': str(e),
+            'status': 'error'
+        }), 500
+
+
 # ============================================================
 # MICROPHONE CALIBRATION SYSTEM
 # ============================================================

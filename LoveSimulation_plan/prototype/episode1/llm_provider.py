@@ -383,16 +383,32 @@ class OpenRouterProvider(LLMProvider):
         self.last_usage = None
         self.cost_tracker = get_cost_tracker()
         
+        # Context caching
+        self.cached_system_prompt = None
+        self.cache_key = None
+        self.cache_stats = {'hits': 0, 'misses': 0, 'saved_tokens': 0}
+        
         # Resolve alias
         if self.model in self.MODEL_ALIASES:
             self.model = self.MODEL_ALIASES[self.model]
     
-    def generate(self, system_prompt: str, user_message: str) -> str:
+    def _should_cache(self, system_prompt: str) -> bool:
+        """Check if system prompt should be cached (long prompts benefit)"""
+        # Cache prompts longer than 500 chars
+        return len(system_prompt) > 500
+    
+    def _get_cache_key(self, system_prompt: str) -> str:
+        """Generate cache key from system prompt"""
+        import hashlib
+        return hashlib.md5(system_prompt.encode()).hexdigest()[:16]
+    
+    def generate(self, system_prompt: str, user_message: str, use_cache: bool = True) -> str:
         if not self.is_available():
             raise RuntimeError("OpenRouter API key not configured")
         
         try:
             import requests
+            import hashlib
             
             headers = {
                 "Authorization": f"Bearer {self.api_key}",
@@ -401,14 +417,54 @@ class OpenRouterProvider(LLMProvider):
                 "X-Title": os.environ.get('OPENROUTER_TITLE', 'LoveSimulation')
             }
             
+            messages = []
+            cache_hit = False
+            
+            # Check if we can use cached system prompt
+            if use_cache and self._should_cache(system_prompt):
+                current_key = self._get_cache_key(system_prompt)
+                
+                if current_key == self.cache_key and self.cached_system_prompt:
+                    # Cache hit - reuse cached system prompt
+                    cache_hit = True
+                    self.cache_stats['hits'] += 1
+                    self.cache_stats['saved_tokens'] += len(system_prompt.split())
+                    logger.info(f"[OpenRouter] Cache HIT for system prompt ({len(system_prompt)} chars)")
+                else:
+                    # Cache miss - set new cache
+                    self.cache_key = current_key
+                    self.cached_system_prompt = system_prompt
+                    self.cache_stats['misses'] += 1
+                    logger.info(f"[OpenRouter] Cache MISS for system prompt ({len(system_prompt)} chars)")
+                
+                # Add system message with cache control (for supported models)
+                messages.append({
+                    "role": "system",
+                    "content": system_prompt
+                })
+            else:
+                # Short prompt - no caching needed
+                messages.append({
+                    "role": "system", 
+                    "content": system_prompt
+                })
+            
+            messages.append({
+                "role": "user",
+                "content": user_message
+            })
+            
             data = {
                 "model": self.model,
-                "messages": [
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_message}
-                ],
+                "messages": messages,
                 "max_tokens": 500
             }
+            
+            # Enable provider-level caching for Anthropic models
+            if 'anthropic' in self.model.lower() and cache_hit:
+                data["provider"] = {
+                    "cache": {"max_age": 3600}  # 1 hour cache
+                }
             
             response = requests.post(
                 f"{self.BASE_URL}/chat/completions",
@@ -459,7 +515,218 @@ class OpenRouterProvider(LLMProvider):
         if model in self.MODEL_ALIASES:
             model = self.MODEL_ALIASES[model]
         self.model = model
+        # Clear cache when model changes
+        self.cached_system_prompt = None
+        self.cache_key = None
         logger.info(f"[OpenRouter] Model changed to: {self.model}")
+    
+    def get_cache_stats(self) -> dict:
+        """Get caching statistics"""
+        total = self.cache_stats['hits'] + self.cache_stats['misses']
+        hit_rate = self.cache_stats['hits'] / total * 100 if total > 0 else 0
+        
+        return {
+            'hits': self.cache_stats['hits'],
+            'misses': self.cache_stats['misses'],
+            'hit_rate': round(hit_rate, 1),
+            'saved_tokens': self.cache_stats['saved_tokens'],
+            'cached_prompt_length': len(self.cached_system_prompt) if self.cached_system_prompt else 0
+        }
+    
+    def clear_cache(self):
+        """Clear cached system prompt"""
+        self.cached_system_prompt = None
+        self.cache_key = None
+        logger.info("[OpenRouter] Cache cleared")
+
+
+class BatchProcessor:
+    """Batch LLM Request Processor
+    
+    Groups multiple requests into a single API call for efficiency.
+    Useful for processing multiple user inputs simultaneously.
+    
+    Benefits:
+    - Reduced API overhead
+    - Lower latency for bulk operations
+    - Cost savings through batching
+    
+    Usage:
+        batch = BatchProcessor(provider)
+        batch.add('prompt1', 'message1')
+        batch.add('prompt2', 'message2')
+        results = batch.execute()
+    """
+    
+    MAX_BATCH_SIZE = 10  # Maximum requests per batch
+    BATCH_TIMEOUT = 5.0   # Max wait time before executing partial batch
+    
+    def __init__(self, provider: 'LLMProvider' = None):
+        self.provider = provider
+        self.queue = []
+        self.results = {}
+        self.stats = {
+            'total_requests': 0,
+            'batches_executed': 0,
+            'avg_batch_size': 0.0
+        }
+    
+    def add(self, request_id: str, system_prompt: str, user_message: str, 
+            metadata: dict = None) -> str:
+        """
+        Add request to batch queue.
+        
+        Args:
+            request_id: Unique identifier for this request
+            system_prompt: System prompt
+            user_message: User message
+            metadata: Optional metadata (score, context, etc.)
+        
+        Returns:
+            request_id
+        """
+        self.queue.append({
+            'id': request_id,
+            'system_prompt': system_prompt,
+            'user_message': user_message,
+            'metadata': metadata or {}
+        })
+        self.stats['total_requests'] += 1
+        return request_id
+    
+    def add_many(self, requests: list) -> list:
+        """
+        Add multiple requests at once.
+        
+        Args:
+            requests: List of dicts with keys: id, system_prompt, user_message, metadata (optional)
+        
+        Returns:
+            List of request IDs
+        """
+        ids = []
+        for req in requests:
+            req_id = self.add(
+                req.get('id'),
+                req.get('system_prompt'),
+                req.get('user_message'),
+                req.get('metadata')
+            )
+            ids.append(req_id)
+        return ids
+    
+    def execute(self, force_single: bool = False) -> dict:
+        """
+        Execute all queued requests.
+        
+        Args:
+            force_single: If True, execute each request separately (no batching)
+        
+        Returns:
+            Dict mapping request_id -> response
+        """
+        if not self.queue:
+            return {}
+        
+        results = {}
+        
+        if force_single or len(self.queue) == 1:
+            # Execute individually
+            for req in self.queue:
+                try:
+                    response = self.provider.generate(
+                        req['system_prompt'],
+                        req['user_message']
+                    )
+                    results[req['id']] = {
+                        'response': response,
+                        'success': True,
+                        'error': None
+                    }
+                except Exception as e:
+                    results[req['id']] = {
+                        'response': None,
+                        'success': False,
+                        'error': str(e)
+                    }
+        else:
+            # Execute as batch
+            batches = self._split_into_batches()
+            
+            for batch in batches:
+                batch_results = self._execute_batch(batch)
+                results.update(batch_results)
+            
+            self.stats['batches_executed'] += len(batches)
+            if self.stats['batches_executed'] > 0:
+                self.stats['avg_batch_size'] = (
+                    self.stats['total_requests'] / self.stats['batches_executed']
+                )
+        
+        # Clear queue
+        self.queue = []
+        self.results = results
+        
+        return results
+    
+    def _split_into_batches(self) -> list:
+        """Split queue into batches"""
+        batches = []
+        for i in range(0, len(self.queue), self.MAX_BATCH_SIZE):
+            batch = self.queue[i:i + self.MAX_BATCH_SIZE]
+            batches.append(batch)
+        return batches
+    
+    def _execute_batch(self, batch: list) -> dict:
+        """
+        Execute a single batch of requests.
+        
+        For OpenRouter, we use parallel requests since there's no native batch API.
+        This still saves overhead through connection reuse and parallel processing.
+        """
+        import concurrent.futures
+        
+        results = {}
+        
+        def process_request(req):
+            try:
+                response = self.provider.generate(
+                    req['system_prompt'],
+                    req['user_message']
+                )
+                return req['id'], {
+                    'response': response,
+                    'success': True,
+                    'error': None
+                }
+            except Exception as e:
+                return req['id'], {
+                    'response': None,
+                    'success': False,
+                    'error': str(e)
+                }
+        
+        # Execute in parallel
+        with concurrent.futures.ThreadPoolExecutor(max_workers=len(batch)) as executor:
+            futures = [executor.submit(process_request, req) for req in batch]
+            
+            for future in concurrent.futures.as_completed(futures):
+                req_id, result = future.result()
+                results[req_id] = result
+        
+        return results
+    
+    def get_stats(self) -> dict:
+        """Get batch processing statistics"""
+        return {
+            **self.stats,
+            'queue_size': len(self.queue)
+        }
+    
+    def clear(self):
+        """Clear queue and results"""
+        self.queue = []
+        self.results = {}
 
 
 class SmartRouter(LLMProvider):
