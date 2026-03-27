@@ -2202,6 +2202,87 @@ def dialogue_history():
             'error': str(e)
         }), 500
 
+@app.route('/episode/revert', methods=['POST'])
+def episode_revert():
+    """
+    에피소드 회귀 (초기화)
+    
+    Request:
+        {
+            "player_id": "player_001",
+            "episode_id": 1
+        }
+    
+    Response:
+        {
+            "status": "ok",
+            "episode": {...},
+            "initial_state": {...}
+        }
+    """
+    try:
+        data = request.get_json() or {}
+        player_id = data.get('player_id', 'default_player')
+        
+        manager = get_episode_manager()
+        result = manager.revert_episode(player_id)
+        
+        if result is None:
+            return jsonify({
+                'status': 'error',
+                'message': 'Player not found'
+            }), 404
+        
+        log_event('info', 'episode.reverted',
+                  player_id=player_id,
+                  episode_id=result['episode']['id'])
+        
+        return jsonify({
+            'status': 'ok',
+            **result
+        })
+        
+    except Exception as e:
+        app.logger.exception('episode revert failed')
+        log_event('error', 'episode.revert_exception', error=str(e))
+        return jsonify({
+            'status': 'error',
+            'error': str(e)
+        }), 500
+
+@app.route('/episode/analyze', methods=['GET'])
+def episode_analyze():
+    """
+    대화 분석
+    
+    Query Params:
+        player_id: 플레이어 ID
+    
+    Response:
+        {
+            "status": "ok",
+            "issues": [...],
+            "tips": [...],
+            "silence_ratio": 0.14,
+            "low_score_ratio": 0.14
+        }
+    """
+    try:
+        player_id = request.args.get('player_id', 'default_player')
+        
+        manager = get_episode_manager()
+        result = manager.analyze_dialogue(player_id)
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        app.logger.exception('episode analyze failed')
+        log_event('error', 'episode.analyze_exception', error=str(e))
+        return jsonify({
+            'status': 'error',
+            'error': str(e)
+        }), 500
+
 if __name__ == '__main__':
     # enable more verbose logging for debugging
     app.logger.setLevel(logging.DEBUG)

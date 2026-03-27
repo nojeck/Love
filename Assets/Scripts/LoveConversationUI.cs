@@ -27,6 +27,9 @@ public class LoveConversationUI : MonoBehaviour
     public AutoRecordingController autoRecording;
     public bool useAutoRecording = true;
     
+    [Header("Result Popup (Phase 7.4)")]
+    public ResultPopupController resultPopup;
+    
     [Header("Calibration UI")]
     public Button calibrateButton;
     public TMP_Text calibrationStatusText;
@@ -468,7 +471,14 @@ public class LoveConversationUI : MonoBehaviour
         // Clear! 호감도 100 달성
         Debug.Log("[LoveConversationUI] Episode Clear! Affection reached 100!");
         UpdateStatus("★ CLEAR! 호감도 100 달성! ★");
-        // TODO: Clear 팝업 표시
+        
+        // Clear 팝업 표시
+        if (resultPopup != null)
+        {
+            int turnCount = conversationHistory.Count;
+            float avgScore = CalculateAverageScore();
+            resultPopup.ShowClearPopup(1, turnCount, avgScore, currentSessionId);
+        }
     }
     
     private void OnAffectionMin()
@@ -476,7 +486,27 @@ public class LoveConversationUI : MonoBehaviour
         // Fail... 호감도 0
         Debug.Log("[LoveConversationUI] Episode Fail... Affection dropped to 0");
         UpdateStatus("✗ FAIL... 호감도가 바닥났다...");
-        // TODO: Fail 팝업 표시 + 회귀 버튼
+        
+        // Fail 팝업 표시
+        if (resultPopup != null)
+        {
+            int turnCount = conversationHistory.Count;
+            float avgScore = CalculateAverageScore();
+            resultPopup.ShowFailPopupWithAnalysis(1, turnCount, avgScore, currentSessionId);
+        }
+    }
+    
+    private float CalculateAverageScore()
+    {
+        if (conversationHistory.Count == 0)
+            return 0f;
+        
+        float total = 0f;
+        foreach (var turn in conversationHistory)
+        {
+            total += turn.score;
+        }
+        return total / conversationHistory.Count;
     }
     
     #endregion

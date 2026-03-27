@@ -173,7 +173,12 @@ context = history.get_context('player_001')
   - 호감도 0점 이하: 실패 팝업
   - 실패 시 대화 분석 피드백 출력
   - '회귀하기' 버튼 → 에피소드 처음으로 이동
-- **상태**: ⏳ 계획 중
+- **설계 문서**: `PHASE_7_4_RESULT_POPUP_DESIGN.md` ✅
+- **구현 파일**: 
+  - `Assets/Scripts/ResultPopupController.cs` ✅
+  - `episode_manager.py` (revert_episode, analyze_dialogue) ✅
+  - `server.py` (/episode/revert, /episode/analyze) ✅
+- **상태**: 🔄 구현 완료, 테스트 대기
 
 #### 7.5 NPC TTS 시스템
 - **목표**: NPC 음성 출력으로 몰입감 강화

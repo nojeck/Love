@@ -533,6 +533,115 @@ class EpisodeManager:
             }
             for row in reversed(rows)
         ]
+    
+    def revert_episode(self, player_id: str) -> Optional[Dict]:
+        """
+        에피소드 회귀 (초기화)
+        
+        Args:
+            player_id: 플레이어 ID
+            
+        Returns:
+            초기화된 상태
+        """
+        state = self.get_player_state(player_id)
+        if state is None:
+            return None
+        
+        episode_id = state["episode_id"]
+        episode = self._load_episode(episode_id)
+        
+        # 초기 상태
+        initial_affection = episode.get("initial_affection", 50.0)
+        first_situation = episode["situations"][0]
+        
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        
+        # 상태 리셋
+        cursor.execute('''
+            UPDATE player_state 
+            SET situation_id = ?, affection = ?, turn_count = ?, chaos_level = ?, updated_at = ?
+            WHERE player_id = ?
+        ''', (
+            first_situation["situation_id"],
+            initial_affection,
+            0,
+            0.0,
+            datetime.now().isoformat(),
+            player_id
+        ))
+        
+        # 대화 기록 삭제
+        cursor.execute('DELETE FROM dialogue_history WHERE player_id = ?', (player_id,))
+        
+        conn.commit()
+        conn.close()
+        
+        return {
+            "episode": self._get_episode_info(episode_id),
+            "initial_state": {
+                "affection": initial_affection,
+                "chaos_level": 0.0,
+                "turn_count": 0,
+                "situation_id": first_situation["situation_id"]
+            }
+        }
+    
+    def analyze_dialogue(self, player_id: str) -> Dict:
+        """
+        대화 분석
+        
+        Args:
+            player_id: 플레이어 ID
+            
+        Returns:
+            분석 결과
+        """
+        history = self.get_dialogue_history(player_id, limit=50)
+        
+        if not history:
+            return {
+                "status": "ok",
+                "issues": ["대화 기록 없음"],
+                "tips": ["새 에피소드를 시작하세요"]
+            }
+        
+        issues = []
+        tips = []
+        total_turns = len(history)
+        
+        # 침묵 감지
+        silence_count = sum(1 for h in history if not h.get("text") or h["text"] in ["", "(silence)", "(no transcript)"])
+        if silence_count > 0:
+            issues.append(f"침묵 {silence_count}회 ({silence_count/total_turns*100:.0f}%)")
+            tips.append("침묵을 피하고 적극적으로 대화하세요")
+        
+        # 저점수 감지
+        low_score_count = sum(1 for h in history if h.get("score", 0.5) < 0.3)
+        if low_score_count > 0:
+            issues.append(f"부정적 반응 {low_score_count}회")
+            tips.append("상대방의 감정을 배려하는 발언을 시도해보세요")
+        
+        # 부정 감정 감지
+        negative_emotions = ["sadness", "anger", "disappointment", "frustration"]
+        negative_count = sum(1 for h in history if h.get("emotion") in negative_emotions)
+        if negative_count > 0:
+            issues.append(f"부정적 감정 {negative_count}회")
+        
+        # 기본 팁
+        if not tips:
+            tips.append("상대방의 변화에 더 관심을 가져보세요")
+            tips.append("감정을 배려하는 발언을 시도해보세요")
+        
+        return {
+            "status": "ok",
+            "issues": issues if issues else ["호감도가 너무 낮아졌습니다"],
+            "tips": tips,
+            "silence_ratio": silence_count / total_turns if total_turns > 0 else 0,
+            "low_score_ratio": low_score_count / total_turns if total_turns > 0 else 0,
+            "total_turns": total_turns
+        }
 
 
 # 테스트용
