@@ -1,0 +1,10 @@
+{
+  "content-type": "application/json",
+  "dg-project-id": "f51fa2ce-cecd-4b83-89c8-cbd39c16e179",
+  "vary": "origin, access-control-request-method, access-control-request-headers, accept-encoding",
+  "access-control-allow-credentials": "true",
+  "access-control-expose-headers": "dg-model-name,dg-model-uuid,dg-additional-model-uuids,dg-char-count,dg-request-id,dg-project-id,dg-error,dg-breaks-applied,dg-pronunciations-applied,dg-pronunciation-warnings",
+  "dg-request-id": "c7f23751-fb9c-4ba0-9436-7fc67af8ac3c",
+  "content-length": "844",
+  "date": "Thu, 26 Mar 2026 06:37:33 GMT"
+}

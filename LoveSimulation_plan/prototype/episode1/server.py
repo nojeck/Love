@@ -13,6 +13,7 @@ from calibration_db import CalibrationDB
 from llm_text_scorer import LLMTextScorer
 from conversation_history import ConversationHistory
 from npc_response_generator import NPCResponseGenerator
+from npc_response_generator_v2 import NPCResponseGeneratorV2
 from config_manager import ConfigManager
 import requests
 from requests.adapters import HTTPAdapter
@@ -137,23 +138,23 @@ CALIB_DB = CalibrationDB(os.path.join(CALIB_DIR, 'calibration.db'))
 # Initialize configuration manager
 CONFIG = ConfigManager()
 
-# Initialize NPC response generator
+# Initialize NPC response generator (V2 - Full LLM Based)
 try:
-    llm_provider_name = CONFIG.get('llm_provider') or 'claude'
-    print(f"[INFO] Initializing NPC generator with provider: {llm_provider_name}")
-    NPC_GENERATOR = NPCResponseGenerator(
+    llm_provider_name = CONFIG.get('llm_provider') or 'gemini'
+    print(f"[INFO] Initializing NPC generator V2 with provider: {llm_provider_name}")
+    NPC_GENERATOR = NPCResponseGeneratorV2(
         llm_provider=llm_provider_name,
         config_file='llm_config.json'
     )
     provider_info = NPC_GENERATOR.get_provider_info()
-    print(f"[OK] NPC generator initialized: {provider_info['provider_name']}")
-    log_event('info', 'startup.npc_generator_initialized', 
+    print(f"[OK] NPC generator V2 initialized: {provider_info['provider_name']}")
+    log_event('info', 'startup.npc_generator_v2_initialized', 
              provider=provider_info['provider_name'],
-             is_available=provider_info['is_available'])
+             version=provider_info.get('version', 'V2'))
 except Exception as e:
     NPC_GENERATOR = None
-    print(f"[ERROR] NPC generator initialization failed: {e}")
-    log_event('error', 'startup.npc_generator_failed', error=str(e))
+    print(f"[ERROR] NPC generator V2 initialization failed: {e}")
+    log_event('error', 'startup.npc_generator_v2_failed', error=str(e))
 
 # Initialize LLM text scorer (pure LLM mode)
 try:
@@ -196,7 +197,7 @@ except Exception:
 
 def analyze_wav(path):
     # Skip audio analysis if requested (for testing)
-    if env_bool('SKIP_AUDIO_ANALYSIS', True):
+    if env_bool('SKIP_AUDIO_ANALYSIS', False):
         log_event('info', 'analyze_wav.skipped', reason='SKIP_AUDIO_ANALYSIS=true')
         return {'jitter': 1.0, 'shimmer': 3.5, 'pitch_dev_percent': 10.0, 'hnr_db': 20.0, 'f0_mean': 0.0, 'extraction_status': 'skipped'}
     
@@ -375,6 +376,18 @@ def transcribe_deepgram(path, req_uuid, language='ko', model=None):
     }
 
     api_key = os.environ.get('DEEPGRAM_API_KEY')
+    if not api_key:
+        # Fallback to config file
+        try:
+            from config_manager import ConfigManager
+            config = ConfigManager()
+            api_key = config.get('deepgram_api_key')
+            if api_key:
+                os.environ['DEEPGRAM_API_KEY'] = api_key
+                log_event('info', 'deepgram.key_from_config', req_uuid=req_uuid)
+        except Exception as e:
+            log_event('warning', 'deepgram.config_load_failed', req_uuid=req_uuid, error=str(e))
+    
     if not api_key:
         result['status'] = 'no_key'
         result['error'] = 'DEEPGRAM_API_KEY not set'
@@ -878,7 +891,18 @@ def analyze():
         'transcript': transcript
     }
 
-    scores = evaluate_response(inputs)
+    # Get device_id for calibration (optional)
+    device_id = request.form.get('device_id')
+    
+    # Get device baseline if calibrated
+    baseline = None
+    if device_id:
+        baseline = CALIB_DB.get_baseline(device_id)
+        if baseline:
+            log_event('info', 'analyze.calibration_found', 
+                     req_uuid=req_uuid, device_id=device_id)
+    
+    scores = evaluate_response(inputs, baseline=baseline, device_id=device_id)
     emotion = compute_emotion_from_text_and_audio(transcript, metrics)
     
     # Initialize session if needed and track conversation
@@ -1054,7 +1078,7 @@ def generate_feedback():
     """
     Generate varied NPC feedback based on player response and score.
     
-    Tracks conversation and forces LLM when repetition is detected.
+    Uses V2 NPC Generator (Full LLM Based) for rich emotional responses.
     
     Params (JSON body):
         session_id: player session (for tracking)
@@ -1064,7 +1088,11 @@ def generate_feedback():
         audio_score: audio authenticity score
         emotion: detected emotion
         previous_feedback: optional previous NPC response to avoid
-        force_llm: force LLM usage
+        force_llm: force LLM usage (ignored in V2, always uses LLM)
+        game_context: optional game context (episode, situation, etc.)
+        audio_metrics: optional audio analysis results
+        memory_penalty: optional memory penalty (0..1)
+        chaos_level: optional chaos level (0..1)
     """
     try:
         data = request.get_json() or {}
@@ -1075,18 +1103,54 @@ def generate_feedback():
         audio_score = float(data.get('audio_score', score))
         emotion = data.get('emotion', 'neutral')
         previous_feedback = data.get('previous_feedback')
-        force_llm = data.get('force_llm', False)
-        
-        # Allow empty transcript (silence case)
-        # if not transcript:
-        #     return jsonify({'error': 'transcript required'}), 400
+        game_context = data.get('game_context')
+        audio_metrics = data.get('audio_metrics')
+        memory_penalty = float(data.get('memory_penalty', 0.0))
+        chaos_level = float(data.get('chaos_level', 0.0))
         
         # Use "(silence)" if transcript is empty
         if not transcript or transcript.strip() == '':
-            transcript = '(silence)'
+            transcript = '(침묵)'
             log_event('debug', 'feedback.empty_transcript_replaced', session_id=session_id)
         
-        # Track conversation
+        # Generate NPC response using V2 (Full LLM)
+        if NPC_GENERATOR:
+            npc_result = NPC_GENERATOR.generate(
+                transcript=transcript,
+                emotion=emotion,
+                score=score,
+                personality=game_context.get('personality', 'romantic') if game_context else 'romantic',
+                session_id=session_id,
+                game_context=game_context,
+                audio_metrics=audio_metrics,
+                memory_penalty=memory_penalty,
+                chaos_level=chaos_level
+            )
+            
+            feedback_text = npc_result.get('npc_response', '...')
+            npc_emotion = npc_result.get('npc_emotion', emotion)
+            mood_change = npc_result.get('mood_change', 0.0)
+            hint = npc_result.get('hint')
+            special_action = npc_result.get('special_action')
+            score_level = npc_result.get('score_level', 'okay')
+            
+            log_event('info', 'feedback.v2_generated',
+                     session_id=session_id,
+                     npc_emotion=npc_emotion,
+                     mood_change=mood_change,
+                     score_level=score_level,
+                     llm_used=npc_result.get('llm_used', True))
+        else:
+            # Fallback if NPC_GENERATOR not available
+            feedback_text = "..."
+            npc_emotion = emotion
+            mood_change = 0.0
+            hint = None
+            special_action = None
+            score_level = 'okay'
+            log_event('warning', 'feedback.npc_generator_unavailable')
+        
+        # Track conversation in history (for memory system)
         if session_id and session_id not in ['', None]:
             try:
                 HISTORY.add_exchange(
@@ -1094,39 +1158,26 @@ def generate_feedback():
                     user=transcript,
                     emotion=emotion,
                     score=score,
-                    npc=npc_response or 'thinking...'
+                    npc=feedback_text
                 )
-                
-                # Check for repetition in conversation
-                conv_context = HISTORY.get_context(session_id, limit=5)
-                if len(conv_context.get('repeated_emotions', [])) > 0:
-                    force_llm = True  # Force LLM if repetition detected
-                    log_event('info', 'feedback.repetition_detected',
-                             session_id=session_id,
-                             repeated_emotions=conv_context.get('repeated_emotions', []))
             except Exception as e:
                 app.logger.debug(f'Conversation tracking failed: {e}')
         
-        # Generate feedback with possible LLM forcing
-        feedback_result = HYBRID_SCORER.generate_feedback(
-            transcript=transcript,
-            score=score,
-            emotion=emotion,
-            previous_feedback=previous_feedback,
-            force_llm=force_llm
-        )
-        
-        return jsonify({
+        response_data = {
             'status': 'ok',
-            'feedback': feedback_result['feedback'],
-            'variation_type': feedback_result['variation_type'],
-            'confidence': feedback_result['confidence'],
-            'is_llm_available': HYBRID_SCORER.llm_provider is not None,
-            'was_force_llm': force_llm,
+            'feedback': feedback_text,
+            'npc_emotion': npc_emotion,
+            'mood_change': mood_change,
+            'hint': hint,
+            'special_action': special_action,
+            'score_level': score_level,
             'emotion': emotion,
             'score': round(score, 3),
-            'session_id': session_id
-        })
+            'session_id': session_id,
+            'generator_version': 'V2'
+        }
+        
+        return jsonify(response_data)
     
     except Exception as e:
         app.logger.exception('feedback generation failed')
@@ -1154,6 +1205,418 @@ def hybrid_status():
             'error': str(e),
             'status': 'error'
         }), 500
+
+
+# ============================================================
+# LLM COST MONITORING
+# ============================================================
+
+@app.route('/llm-costs', methods=['GET'])
+def llm_costs():
+    """
+    Get LLM API cost statistics.
+    
+    Returns:
+        session: Current session costs
+        total: Total accumulated costs
+        num_requests: Number of API calls
+    """
+    try:
+        from llm_provider import get_cost_tracker
+        tracker = get_cost_tracker()
+        return jsonify({
+            'status': 'ok',
+            **tracker.get_summary()
+        })
+    except Exception as e:
+        return jsonify({
+            'error': str(e),
+            'status': 'error'
+        }), 500
+
+
+@app.route('/llm-costs/reset', methods=['POST'])
+def reset_llm_costs():
+    """Reset session cost tracking."""
+    try:
+        from llm_provider import get_cost_tracker
+        tracker = get_cost_tracker()
+        tracker.reset_session()
+        return jsonify({
+            'status': 'ok',
+            'message': 'Session costs reset'
+        })
+    except Exception as e:
+        return jsonify({
+            'error': str(e),
+            'status': 'error'
+        }), 500
+
+
+@app.route('/llm-routing-stats', methods=['GET'])
+def llm_routing_stats():
+    """
+    Get SmartRouter statistics.
+    
+    Returns:
+        total: Total requests routed
+        distribution: Count and percentage per tier
+        last_complexity: Last request complexity score
+        last_tier: Last selected tier
+    """
+    try:
+        from llm_provider import LLMProviderFactory
+        provider = LLMProviderFactory.create('smart')
+        
+        if provider is None:
+            return jsonify({
+                'status': 'error',
+                'message': 'SmartRouter not initialized'
+            }), 400
+        
+        from llm_provider import SmartRouter
+        if isinstance(provider, SmartRouter):
+            return jsonify({
+                'status': 'ok',
+                **provider.get_routing_stats()
+            })
+        else:
+            return jsonify({
+                'status': 'error',
+                'message': f'Provider is {type(provider).__name__}, not SmartRouter'
+            }), 400
+    except Exception as e:
+        return jsonify({
+            'error': str(e),
+            'status': 'error'
+        }), 500
+
+
+# ============================================================
+# MICROPHONE CALIBRATION SYSTEM
+# ============================================================
+
+# In-memory calibration session tracking
+CALIBRATION_SESSIONS = {}  # session_id -> {samples: [], device_id: str}
+
+@app.route('/calibrate/start', methods=['POST'])
+def calibrate_start():
+    """
+    Start a microphone calibration session.
+    
+    The user should record 3-5 samples of normal speech.
+    The system will compute baseline metrics for this device.
+    
+    Params (JSON body):
+        device_id: unique device identifier (optional, auto-generated if not provided)
+        session_id: optional session ID to continue previous calibration
+    
+    Returns:
+        session_id: calibration session ID
+        samples_needed: minimum samples required (3)
+        samples_received: current sample count
+    """
+    try:
+        data = request.get_json() or {}
+        device_id = data.get('device_id', f'device_{int(time.time())}')
+        existing_session_id = data.get('session_id')
+        
+        # Continue existing session or start new
+        if existing_session_id and existing_session_id in CALIBRATION_SESSIONS:
+            session_id = existing_session_id
+        else:
+            session_id = f'calib_{int(time.time())}_{str(uuid.uuid4())[:8]}'
+            CALIBRATION_SESSIONS[session_id] = {
+                'device_id': device_id,
+                'samples': [],
+                'started_at': time.time()
+            }
+        
+        session = CALIBRATION_SESSIONS[session_id]
+        
+        log_event('info', 'calibrate.start', 
+                 session_id=session_id, 
+                 device_id=device_id,
+                 samples_received=len(session['samples']))
+        
+        return jsonify({
+            'status': 'ok',
+            'session_id': session_id,
+            'device_id': device_id,
+            'samples_needed': 3,
+            'samples_received': len(session['samples']),
+            'message': 'Record 3-5 normal speech samples for calibration'
+        })
+    
+    except Exception as e:
+        app.logger.exception('calibration start failed')
+        return jsonify({'error': str(e), 'status': 'error'}), 500
+
+
+@app.route('/calibrate/sample', methods=['POST'])
+def calibrate_sample():
+    """
+    Submit a calibration sample (WAV file).
+    
+    Params (multipart/form-data):
+        file: WAV file of normal speech (3-5 seconds recommended)
+        session_id: calibration session ID from /calibrate/start
+    
+    Returns:
+        sample_id: sample ID
+        metrics: extracted audio metrics
+        samples_received: total samples received
+        is_complete: whether minimum samples reached
+    """
+    try:
+        session_id = request.form.get('session_id')
+        
+        if not session_id or session_id not in CALIBRATION_SESSIONS:
+            return jsonify({'error': 'Invalid or missing session_id'}), 400
+        
+        f = request.files.get('file')
+        if f is None:
+            return jsonify({'error': 'No file uploaded'}), 400
+        
+        # Save temp file
+        fd, path = tempfile.mkstemp(suffix='.wav')
+        os.close(fd)
+        f.save(path)
+        
+        # Analyze audio
+        metrics = analyze_wav(path)
+        
+        # Clean up
+        try:
+            os.remove(path)
+        except:
+            pass
+        
+        # Store sample
+        session = CALIBRATION_SESSIONS[session_id]
+        sample_id = str(uuid.uuid4())[:8]
+        session['samples'].append({
+            'sample_id': sample_id,
+            'metrics': metrics,
+            'timestamp': time.time()
+        })
+        
+        samples_received = len(session['samples'])
+        is_complete = samples_received >= 3
+        
+        log_event('info', 'calibrate.sample_received',
+                 session_id=session_id,
+                 sample_id=sample_id,
+                 metrics=metrics,
+                 samples_received=samples_received,
+                 is_complete=is_complete)
+        
+        return jsonify({
+            'status': 'ok',
+            'session_id': session_id,
+            'sample_id': sample_id,
+            'metrics': metrics,
+            'samples_received': samples_received,
+            'is_complete': is_complete,
+            'message': f'Sample {samples_received}/3 received' + (' - Ready to finalize!' if is_complete else '')
+        })
+    
+    except Exception as e:
+        app.logger.exception('calibration sample failed')
+        return jsonify({'error': str(e), 'status': 'error'}), 500
+
+
+@app.route('/calibrate/finish', methods=['POST'])
+def calibrate_finish():
+    """
+    Finalize calibration and compute device baseline.
+    
+    Params (JSON body):
+        session_id: calibration session ID
+    
+    Returns:
+        baseline: computed baseline metrics (mean, std)
+        calibration_applied: whether baseline was saved
+    """
+    try:
+        data = request.get_json() or {}
+        session_id = data.get('session_id')
+        
+        if not session_id or session_id not in CALIBRATION_SESSIONS:
+            return jsonify({'error': 'Invalid or missing session_id'}), 400
+        
+        session = CALIBRATION_SESSIONS[session_id]
+        samples = session['samples']
+        
+        if len(samples) < 3:
+            return jsonify({
+                'error': f'Need at least 3 samples, got {len(samples)}',
+                'status': 'error'
+            }), 400
+        
+        # Compute baseline from samples
+        import statistics
+        
+        def compute_stats(key):
+            values = [s['metrics'].get(key) for s in samples if s['metrics'].get(key) is not None]
+            if len(values) >= 2:
+                return statistics.mean(values), statistics.stdev(values)
+            elif len(values) == 1:
+                return values[0], 0.0
+            return 0.0, 0.0
+        
+        jitter_mean, jitter_std = compute_stats('jitter')
+        shimmer_mean, shimmer_std = compute_stats('shimmer')
+        pitch_dev_mean, pitch_dev_std = compute_stats('pitch_dev_percent')
+        hnr_mean, hnr_std = compute_stats('hnr_db')
+        f0_mean, f0_std = compute_stats('f0_mean')
+        
+        baseline = {
+            'device_id': session['device_id'],
+            'jitter': {'mean': round(jitter_mean, 3), 'std': round(jitter_std, 3)},
+            'shimmer': {'mean': round(shimmer_mean, 3), 'std': round(shimmer_std, 3)},
+            'pitch_dev': {'mean': round(pitch_dev_mean, 3), 'std': round(pitch_dev_std, 3)},
+            'hnr_db': {'mean': round(hnr_mean, 3), 'std': round(hnr_std, 3)},
+            'f0_mean': {'mean': round(f0_mean, 3), 'std': round(f0_std, 3)},
+            'num_samples': len(samples),
+            'computed_at': int(time.time() * 1000)
+        }
+        
+        # Save to CalibrationDB
+        db_session_id = CALIB_DB.start_session(session['device_id'], notes='Auto calibration')
+        for sample in samples:
+            CALIB_DB.add_metric(db_session_id, sample['metrics'])
+        CALIB_DB.compute_baseline(session['device_id'])
+        
+        # Clean up in-memory session
+        del CALIBRATION_SESSIONS[session_id]
+        
+        log_event('info', 'calibrate.complete',
+                 device_id=session['device_id'],
+                 baseline=baseline)
+        
+        return jsonify({
+            'status': 'ok',
+            'device_id': session['device_id'],
+            'baseline': baseline,
+            'calibration_applied': True,
+            'message': f'Calibration complete for device {session["device_id"]}'
+        })
+    
+    except Exception as e:
+        app.logger.exception('calibration finish failed')
+        return jsonify({'error': str(e), 'status': 'error'}), 500
+
+
+@app.route('/calibrate/status', methods=['GET'])
+def calibrate_status():
+    """Get calibration status for a device."""
+    try:
+        device_id = request.args.get('device_id')
+        
+        if not device_id:
+            return jsonify({'error': 'device_id required'}), 400
+        
+        baseline = CALIB_DB.get_baseline(device_id)
+        
+        if baseline:
+            return jsonify({
+                'status': 'ok',
+                'calibrated': True,
+                'device_id': device_id,
+                'baseline': baseline,
+                'num_samples': baseline.get('num_samples', 0)
+            })
+        else:
+            return jsonify({
+                'status': 'ok',
+                'calibrated': False,
+                'device_id': device_id,
+                'message': 'Device not calibrated. Run /calibrate/start first.'
+            })
+    
+    except Exception as e:
+        app.logger.exception('calibration status check failed')
+        return jsonify({'error': str(e), 'status': 'error'}), 500
+
+
+def compute_normalized_audio_score(metrics: dict, device_id: str = None) -> dict:
+    """
+    Compute normalized audio score using device baseline.
+    
+    If device is calibrated, compares metrics to baseline.
+    If not, uses default thresholds.
+    
+    Returns:
+        audio_score: 0.0-1.0 normalized score
+        normalized_metrics: metrics adjusted for device
+        calibration_used: whether baseline was used
+    """
+    # Default thresholds (for uncalibrated devices)
+    DEFAULT_THRESHOLDS = {
+        'jitter': {'ideal': 1.0, 'max': 5.0},
+        'shimmer': {'ideal': 3.5, 'max': 15.0},
+        'pitch_dev': {'ideal': 15.0, 'max': 50.0},
+        'hnr_db': {'ideal': 25.0, 'min': 10.0}
+    }
+    
+    # Try to get device baseline
+    baseline = None
+    if device_id:
+        baseline = CALIB_DB.get_baseline(device_id)
+    
+    jitter = metrics.get('jitter', 1.0)
+    shimmer = metrics.get('shimmer', 3.5)
+    pitch_dev = metrics.get('pitch_dev_percent', 10.0)
+    hnr = metrics.get('hnr_db', 20.0)
+    
+    if baseline:
+        # Use device-specific baseline
+        # Score = how close to user's own average (lower deviation = higher score)
+        j_mean, j_std = baseline.get('jitter', (1.0, 0.5))
+        s_mean, s_std = baseline.get('shimmer', (3.5, 2.0))
+        p_mean, p_std = baseline.get('pitch_dev', (15.0, 10.0))
+        
+        # Z-score based normalization (how many std from mean)
+        j_z = abs(jitter - j_mean) / max(j_std, 0.1) if j_std > 0 else 0
+        s_z = abs(shimmer - s_mean) / max(s_std, 0.1) if s_std > 0 else 0
+        p_z = abs(pitch_dev - p_mean) / max(p_std, 0.1) if p_std > 0 else 0
+        
+        # Convert z-scores to 0-1 (z=0 -> 1.0, z=2 -> 0.5, z=4+ -> 0.0)
+        def z_to_score(z):
+            return max(0.0, min(1.0, 1.0 - (z / 4.0)))
+        
+        jitter_score = z_to_score(j_z)
+        shimmer_score = z_to_score(s_z)
+        pitch_score = z_to_score(p_z)
+        
+        # Weighted average
+        audio_score = (jitter_score * 0.3 + shimmer_score * 0.3 + pitch_score * 0.4)
+        
+        calibration_used = True
+    else:
+        # Use default thresholds
+        # Lower jitter/shimmer/pitch_dev = better, higher hnr = better
+        jitter_score = max(0, 1.0 - (jitter - DEFAULT_THRESHOLDS['jitter']['ideal']) / 
+                          (DEFAULT_THRESHOLDS['jitter']['max'] - DEFAULT_THRESHOLDS['jitter']['ideal']))
+        shimmer_score = max(0, 1.0 - (shimmer - DEFAULT_THRESHOLDS['shimmer']['ideal']) / 
+                           (DEFAULT_THRESHOLDS['shimmer']['max'] - DEFAULT_THRESHOLDS['shimmer']['ideal']))
+        pitch_score = max(0, 1.0 - (pitch_dev - DEFAULT_THRESHOLDS['pitch_dev']['ideal']) / 
+                         (DEFAULT_THRESHOLDS['pitch_dev']['max'] - DEFAULT_THRESHOLDS['pitch_dev']['ideal']))
+        
+        # Weighted average
+        audio_score = (jitter_score * 0.3 + shimmer_score * 0.3 + pitch_score * 0.4)
+        audio_score = max(0.2, min(1.0, audio_score))  # Clamp to 0.2-1.0 for uncalibrated
+        
+        calibration_used = False
+    
+    return {
+        'audio_score': round(audio_score, 3),
+        'jitter_score': round(jitter_score, 3) if 'jitter_score' in dir() else None,
+        'shimmer_score': round(shimmer_score, 3) if 'shimmer_score' in dir() else None,
+        'pitch_score': round(pitch_score, 3) if 'pitch_score' in dir() else None,
+        'calibration_used': calibration_used
+    }
 
 
 @app.route('/conversation-status', methods=['GET'])

@@ -305,3 +305,83 @@ Traceback (most recent call last):
   File "C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\server.py", line 1, in <module>
     from flask import Flask, request, jsonify
 ModuleNotFoundError: No module named 'flask'
+
+=== ServerControlWindow started at 2026-03-26 14:14:24 ===
+Traceback (most recent call last):
+  File "C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\server.py", line 1, in <module>
+    from flask import Flask, request, jsonify
+ModuleNotFoundError: No module named 'flask'
+
+=== ServerControlWindow started at 2026-03-26 14:16:24 ===
+[2026-03-26 14:16:25,728] DEBUG in server: DEEPGRAM_API_KEY present: True
+[2026-03-26 14:16:25,729] DEBUG in server: DEEPGRAM_MODEL env: None
+[2026-03-26 14:16:25,729] DEBUG in server: DEEPGRAM_PUNCTUATE env: None
+[2026-03-26 14:16:25,729] INFO in server: {"ts_ms": 1774502185729, "event": "startup.ready", "deepgram_log_dir": "C:\\Users\\555a\\LoveSimulation_sample\\LoveSimulation_plan\\prototype\\episode1\\deepgram_logs", "server_debug_dir": "C:\\Users\\555a\\LoveSimulation_sample\\LoveSimulation_plan\\prototype\\episode1\\server_debug"}
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on http://127.0.0.1:5000
+Press CTRL+C to quit
+C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_provider.py:182: FutureWarning: 
+All support for the `google.generativeai` package has ended. It will no longer be receiving 
+updates or bug fixes. Please switch to the `google.genai` package as soon as possible.
+See README for more details:
+https://github.com/google-gemini/deprecated-generative-ai-python/blob/main/README.md
+  import google.generativeai as genai
+[2026-03-26 14:18:33,474] DEBUG in server: DEEPGRAM_API_KEY present: True
+[2026-03-26 14:18:33,474] DEBUG in server: DEEPGRAM_MODEL env: None
+[2026-03-26 14:18:33,474] DEBUG in server: DEEPGRAM_PUNCTUATE env: None
+[2026-03-26 14:18:33,475] INFO in server: {"ts_ms": 1774502313475, "event": "startup.ready", "deepgram_log_dir": "C:\\Users\\555a\\LoveSimulation_sample\\LoveSimulation_plan\\prototype\\episode1\\deepgram_logs", "server_debug_dir": "C:\\Users\\555a\\LoveSimulation_sample\\LoveSimulation_plan\\prototype\\episode1\\server_debug"}
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on http://127.0.0.1:5000
+Press CTRL+C to quit
+
+=== ServerControlWindow started at 2026-03-26 14:22:13 ===
+
+=== ServerControlWindow started at 2026-03-26 14:32:20 ===
+
+=== ServerControlWindow started at 2026-03-26 15:37:16 ===
+
+=== ServerControlWindow started at 2026-03-26 15:43:43 ===
+
+=== ServerControlWindow started at 2026-03-26 16:23:27 ===
+C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_provider.py:182: FutureWarning: 
+All support for the `google.generativeai` package has ended. It will no longer be receiving 
+updates or bug fixes. Please switch to the `google.genai` package as soon as possible.
+See README for more details:
+https://github.com/google-gemini/deprecated-generative-ai-python/blob/main/README.md
+  import google.generativeai as genai
+[2026-03-26 16:23:29,280] DEBUG in server: DEEPGRAM_API_KEY present: True
+[2026-03-26 16:23:29,280] DEBUG in server: DEEPGRAM_MODEL env: None
+[2026-03-26 16:23:29,280] DEBUG in server: DEEPGRAM_PUNCTUATE env: None
+[2026-03-26 16:23:29,280] INFO in server: {"ts_ms": 1774509809280, "event": "startup.ready", "deepgram_log_dir": "C:\\Users\\555a\\LoveSimulation_sample\\LoveSimulation_plan\\prototype\\episode1\\deepgram_logs", "server_debug_dir": "C:\\Users\\555a\\LoveSimulation_sample\\LoveSimulation_plan\\prototype\\episode1\\server_debug"}
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on http://127.0.0.1:5000
+Press CTRL+C to quit
+
+=== ServerControlWindow started at 2026-03-26 16:32:59 ===
+
+=== ServerControlWindow started at 2026-03-27 11:22:07 ===
+C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_provider.py:325: FutureWarning: 
+All support for the `google.generativeai` package has ended. It will no longer be receiving 
+updates or bug fixes. Please switch to the `google.genai` package as soon as possible.
+See README for more details:
+https://github.com/google-gemini/deprecated-generative-ai-python/blob/main/README.md
+  import google.generativeai as genai
+[2026-03-27 11:22:09,251] DEBUG in server: DEEPGRAM_API_KEY present: True
+[2026-03-27 11:22:09,251] DEBUG in server: DEEPGRAM_MODEL env: None
+[2026-03-27 11:22:09,251] DEBUG in server: DEEPGRAM_PUNCTUATE env: None
+[2026-03-27 11:22:09,251] INFO in server: {"ts_ms": 1774578129251, "event": "startup.ready", "deepgram_log_dir": "C:\\Users\\555a\\LoveSimulation_sample\\LoveSimulation_plan\\prototype\\episode1\\deepgram_logs", "server_debug_dir": "C:\\Users\\555a\\LoveSimulation_sample\\LoveSimulation_plan\\prototype\\episode1\\server_debug"}
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on http://127.0.0.1:5000
+Press CTRL+C to quit
+
+=== ServerControlWindow started at 2026-03-27 11:23:09 ===
+
+=== ServerControlWindow started at 2026-03-27 11:31:37 ===
+
+=== ServerControlWindow started at 2026-03-27 11:37:46 ===
+
+=== ServerControlWindow started at 2026-03-27 11:39:00 ===
+
+=== ServerControlWindow started at 2026-03-27 11:47:35 ===
+
+=== ServerControlWindow started at 2026-03-27 11:53:17 ===

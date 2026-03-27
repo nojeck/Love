@@ -75,7 +75,18 @@ class LLMTextScorer:
         
         try:
             # Call LLM
-            response_text = self.llm_provider.generate(system_prompt, user_message)
+            from llm_provider import SmartRouter
+            
+            # Smart routing: text scoring is usually simple, use cheap model
+            if isinstance(self.llm_provider, SmartRouter):
+                # Text scoring is typically simple - force cheap model
+                response_text = self.llm_provider.generate(
+                    system_prompt, 
+                    user_message,
+                    force_tier='cheap'  # Always use cheap for scoring
+                )
+            else:
+                response_text = self.llm_provider.generate(system_prompt, user_message)
             
             # Parse LLM response
             result = self._parse_llm_response(response_text, transcript)

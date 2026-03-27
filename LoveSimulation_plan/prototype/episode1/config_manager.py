@@ -121,12 +121,22 @@ class ConfigManager:
             if api_key:
                 config['google_api_key'] = api_key
         
+        elif llm_provider.lower() == 'openrouter':
+            api_key = os.environ.get('OPENROUTER_API_KEY')
+            if api_key:
+                config['openrouter_api_key'] = api_key
+            model = os.environ.get('OPENROUTER_MODEL')
+            if model:
+                config['openrouter_model'] = model
+        
         return config if len(config) > 1 else None
     
     def _get_default_config(self) -> Dict:
         """Get default configuration"""
         return {
-            'llm_provider': 'claude',
+            'llm_provider': 'openrouter',
+            'openrouter_api_key': '',
+            'openrouter_model': 'deepseek/deepseek-chat',
             'anthropic_api_key': '',
             'openai_api_key': '',
             'ollama_base_url': 'http://localhost:11434',
@@ -192,7 +202,7 @@ class ConfigManager:
         config = self.config.copy()
         
         # Mask API keys
-        for key in ['anthropic_api_key', 'openai_api_key', 'google_api_key']:
+        for key in ['anthropic_api_key', 'openai_api_key', 'google_api_key', 'openrouter_api_key']:
             if key in config and config[key]:
                 config[key] = self._mask_api_key(config[key])
         

@@ -222,3 +222,110 @@ Warning: LLM provider 'claude' not available, using fallback
 
 === ServerControlWindow started at 2026-03-26 13:15:39 ===
 Process exited (code 1)
+
+=== ServerControlWindow started at 2026-03-26 14:14:24 ===
+Process exited (code 1)
+
+=== ServerControlWindow started at 2026-03-26 14:16:24 ===
+[OK] Found config at: C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[OK] Loaded config from C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[INFO] Initializing NPC generator with provider: gemini
+[OK] Found config at: C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[OK] Loaded config from C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[OK] Found config at: C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[OK] Loaded config from C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[OK] Loaded gemini API key from config
+Warning: google-generativeai package not installed. Install with: pip install google-generativeai
+[WARN] Google Gemini not available (API key missing?)
+Warning: LLM provider 'gemini' not available, using fallback
+[OK] NPC generator initialized: fallback
+[OK] Found config at: C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[OK] Loaded config from C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[OK] Loaded gemini API key from config
+Warning: google-generativeai package not installed. Install with: pip install google-generativeai
+[WARN] Google Gemini not available (API key missing?)
+[WARN] LLM Text Scorer initialization failed: LLM provider 'gemini' not available or not configured
+ * Serving Flask app 'server'
+ * Debug mode: off
+[OK] Found config at: C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[OK] Loaded config from C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[INFO] Initializing NPC generator with provider: gemini
+[OK] Found config at: C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[OK] Loaded config from C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[OK] Found config at: C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[OK] Loaded config from C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[OK] Loaded gemini API key from config
+[OK] LLM Provider: Google Gemini
+[OK] NPC generator initialized: Google Gemini
+[OK] Found config at: C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[OK] Loaded config from C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[OK] Loaded gemini API key from config
+[OK] LLM Provider: Google Gemini
+[OK] LLM Text Scorer initialized with: Google Gemini
+[OK] LLM Text Scorer initialized
+ * Serving Flask app 'server'
+ * Debug mode: off
+
+=== ServerControlWindow started at 2026-03-26 14:22:13 ===
+
+=== ServerControlWindow started at 2026-03-26 14:32:20 ===
+
+=== ServerControlWindow started at 2026-03-26 15:37:16 ===
+
+=== ServerControlWindow started at 2026-03-26 15:43:43 ===
+
+=== ServerControlWindow started at 2026-03-26 16:23:27 ===
+[OK] Found config at: C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[OK] Loaded config from C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[INFO] Initializing NPC generator V2 with provider: gemini
+[OK] Found config at: C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[OK] Loaded config from C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[OK] Found config at: C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[OK] Loaded config from C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[OK] Loaded gemini API key from config
+[OK] LLM Provider: Google Gemini
+[OK] NPC Generator V2 initialized: Google Gemini
+[OK] NPC generator V2 initialized: Google Gemini
+[OK] Found config at: C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[OK] Loaded config from C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[OK] Loaded gemini API key from config
+[OK] LLM Provider: Google Gemini
+[OK] LLM Text Scorer initialized with: Google Gemini
+[OK] LLM Text Scorer initialized
+ * Serving Flask app 'server'
+ * Debug mode: off
+
+=== ServerControlWindow started at 2026-03-26 16:32:59 ===
+
+=== ServerControlWindow started at 2026-03-27 11:22:07 ===
+[OK] Found config at: C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[OK] Loaded config from C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[INFO] Initializing NPC generator V2 with provider: openrouter
+[OK] Found config at: C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[OK] Loaded config from C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[OK] Found config at: C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[OK] Loaded config from C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[OK] Loaded openrouter API key from config
+[OK] LLM Provider: OpenRouter (deepseek/deepseek-chat)
+[OK] NPC Generator V2 initialized: OpenRouter (deepseek/deepseek-chat)
+[OK] NPC generator V2 initialized: OpenRouter (deepseek/deepseek-chat)
+[OK] Found config at: C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[OK] Loaded config from C:\Users\555a\LoveSimulation_sample\LoveSimulation_plan\prototype\episode1\llm_config.json
+[OK] Loaded gemini API key from config
+[OK] LLM Provider: Google Gemini
+[OK] LLM Text Scorer initialized with: Google Gemini
+[OK] LLM Text Scorer initialized
+ * Serving Flask app 'server'
+ * Debug mode: off
+
+=== ServerControlWindow started at 2026-03-27 11:23:09 ===
+
+=== ServerControlWindow started at 2026-03-27 11:31:37 ===
+
+=== ServerControlWindow started at 2026-03-27 11:37:46 ===
+
+=== ServerControlWindow started at 2026-03-27 11:39:00 ===
+
+=== ServerControlWindow started at 2026-03-27 11:47:35 ===
+
+=== ServerControlWindow started at 2026-03-27 11:53:17 ===

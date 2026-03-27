@@ -88,6 +88,41 @@ public class UnityMicRecorder : MonoBehaviour
         OnStatus?.Invoke("Uploading");
         StartCoroutine(UploadWav(wav));
     }
+    
+    /// <summary>
+    /// Stop recording and return the AudioClip (for calibration mode).
+    /// </summary>
+    public AudioClip StopAndGetClip()
+    {
+        if (!isRecording) return null;
+        Debug.Log("StopAndGetClip called");
+        int length = Microphone.GetPosition(activeDeviceName);
+        Microphone.End(activeDeviceName);
+        activeDeviceName = null;
+        isRecording = false;
+        
+        if (length <= 0)
+        {
+            Debug.LogWarning("No audio captured.");
+            OnStatus?.Invoke("No audio captured");
+            return null;
+        }
+        
+        // Create a trimmed clip
+        float[] samples = new float[recording.samples * recording.channels];
+        recording.GetData(samples, 0);
+        float[] clipped = new float[length * recording.channels];
+        Array.Copy(samples, clipped, clipped.Length);
+        
+        AudioClip clip = AudioClip.Create("CalibrationSample", length, recording.channels, sampleRate, false);
+        clip.SetData(clipped, 0);
+        
+        // Also save as wav for potential use
+        lastWav = ConvertToWav(clipped, recording.channels, sampleRate);
+        
+        OnStatus?.Invoke("Recording stopped");
+        return clip;
+    }
 
     // Save last recorded wav to disk. Returns saved path or null on failure.
     public string SaveLastRecording(string fileName = null)

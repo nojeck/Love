@@ -1,0 +1,58 @@
+{
+  "metadata": {
+    "transaction_key": "deprecated",
+    "request_id": "9ee6581e-8aa3-44f3-9197-1c9a74a6c8a9",
+    "sha256": "dd0781624c77f31acfdc80513b931a4f816d9714247e9aceafe247a2b19c6988",
+    "created": "2026-03-26T06:49:17.831Z",
+    "duration": 2.9445624,
+    "channels": 1,
+    "models": [
+      "3c79c76c-d186-482b-89d8-8b005a5e5917"
+    ],
+    "model_info": {
+      "3c79c76c-d186-482b-89d8-8b005a5e5917": {
+        "name": "general-nova-3",
+        "version": "2025-09-24.25124",
+        "arch": "nova-3"
+      }
+    }
+  },
+  "results": {
+    "channels": [
+      {
+        "alternatives": [
+          {
+            "transcript": "선녀야아가리하고걸려",
+            "confidence": 0.8098958,
+            "words": [
+              {
+                "word": "선녀야",
+                "start": 0.48,
+                "end": 1.04,
+                "confidence": 0.52685547
+              },
+              {
+                "word": "아가리",
+                "start": 1.04,
+                "end": 1.52,
+                "confidence": 0.8098958
+              },
+              {
+                "word": "하고",
+                "start": 1.52,
+                "end": 1.76,
+                "confidence": 0.91015625
+              },
+              {
+                "word": "걸려",
+                "start": 1.76,
+                "end": 2.56,
+                "confidence": 0.57128906
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

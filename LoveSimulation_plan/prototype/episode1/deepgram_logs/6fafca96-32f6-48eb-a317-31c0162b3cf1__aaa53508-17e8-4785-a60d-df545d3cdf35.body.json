@@ -1,0 +1,52 @@
+{
+  "metadata": {
+    "transaction_key": "deprecated",
+    "request_id": "aaa53508-17e8-4785-a60d-df545d3cdf35",
+    "sha256": "7ea952292b9e5f601c109a1bb92247b798c187c84c31bed2e49b8fb28859a188",
+    "created": "2026-03-27T02:53:32.021Z",
+    "duration": 3.8154376,
+    "channels": 1,
+    "models": [
+      "3c79c76c-d186-482b-89d8-8b005a5e5917"
+    ],
+    "model_info": {
+      "3c79c76c-d186-482b-89d8-8b005a5e5917": {
+        "name": "general-nova-3",
+        "version": "2025-09-24.25124",
+        "arch": "nova-3"
+      }
+    }
+  },
+  "results": {
+    "channels": [
+      {
+        "alternatives": [
+          {
+            "transcript": "내말이들리시나요",
+            "confidence": 0.5839844,
+            "words": [
+              {
+                "word": "내",
+                "start": 0.64,
+                "end": 0.88,
+                "confidence": 0.5839844
+              },
+              {
+                "word": "말이",
+                "start": 0.88,
+                "end": 1.28,
+                "confidence": 0.81933594
+              },
+              {
+                "word": "들리시나요",
+                "start": 1.28,
+                "end": 2.72,
+                "confidence": 0.5506592
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
