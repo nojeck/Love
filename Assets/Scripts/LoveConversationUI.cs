@@ -214,16 +214,16 @@ public class LoveConversationUI : MonoBehaviour
         if (affectionUI != null)
         {
             affectionUI.SetPlayerId(currentSessionId);
-            affectionUI.OnAffectionMax += OnAffectionMax;
-            affectionUI.OnAffectionMin += OnAffectionMin;
+            affectionUI.OnAffectionMax.AddListener(OnAffectionMax);
+            affectionUI.OnAffectionMin.AddListener(OnAffectionMin);
         }
         
         // Initialize auto recording (Phase 7.3)
         if (autoRecording != null && useAutoRecording)
         {
-            autoRecording.OnRecordingComplete += OnAutoRecordingComplete;
-            autoRecording.OnSilenceTimeout += OnAutoRecordingSilence;
-            autoRecording.OnMaxTimeExceeded += OnAutoRecordingTooLong;
+            autoRecording.OnRecordingComplete.AddListener(OnAutoRecordingComplete);
+            autoRecording.OnSilenceTimeout.AddListener(OnAutoRecordingSilence);
+            autoRecording.OnMaxTimeExceeded.AddListener(OnAutoRecordingTooLong);
         }
         
         UpdateStatus("Ready");
@@ -239,16 +239,16 @@ public class LoveConversationUI : MonoBehaviour
         // Unregister affection events
         if (affectionUI != null)
         {
-            affectionUI.OnAffectionMax -= OnAffectionMax;
-            affectionUI.OnAffectionMin -= OnAffectionMin;
+            affectionUI.OnAffectionMax.RemoveListener(OnAffectionMax);
+            affectionUI.OnAffectionMin.RemoveListener(OnAffectionMin);
         }
         
         // Unregister auto recording events (Phase 7.3)
         if (autoRecording != null && useAutoRecording)
         {
-            autoRecording.OnRecordingComplete -= OnAutoRecordingComplete;
-            autoRecording.OnSilenceTimeout -= OnAutoRecordingSilence;
-            autoRecording.OnMaxTimeExceeded -= OnAutoRecordingTooLong;
+            autoRecording.OnRecordingComplete.RemoveListener(OnAutoRecordingComplete);
+            autoRecording.OnSilenceTimeout.RemoveListener(OnAutoRecordingSilence);
+            autoRecording.OnMaxTimeExceeded.RemoveListener(OnAutoRecordingTooLong);
         }
     }
 
