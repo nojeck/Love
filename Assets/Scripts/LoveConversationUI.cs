@@ -23,6 +23,10 @@ public class LoveConversationUI : MonoBehaviour
     [Header("Affection UI (Phase 7.2)")]
     public AffectionUIController affectionUI;
     
+    [Header("Auto Recording (Phase 7.3)")]
+    public AutoRecordingController autoRecording;
+    public bool useAutoRecording = true;
+    
     [Header("Calibration UI")]
     public Button calibrateButton;
     public TMP_Text calibrationStatusText;
@@ -211,6 +215,14 @@ public class LoveConversationUI : MonoBehaviour
             affectionUI.OnAffectionMin += OnAffectionMin;
         }
         
+        // Initialize auto recording (Phase 7.3)
+        if (autoRecording != null && useAutoRecording)
+        {
+            autoRecording.OnRecordingComplete += OnAutoRecordingComplete;
+            autoRecording.OnSilenceTimeout += OnAutoRecordingSilence;
+            autoRecording.OnMaxTimeExceeded += OnAutoRecordingTooLong;
+        }
+        
         UpdateStatus("Ready");
         UpdateConversationDisplay();
     }
@@ -226,6 +238,14 @@ public class LoveConversationUI : MonoBehaviour
         {
             affectionUI.OnAffectionMax -= OnAffectionMax;
             affectionUI.OnAffectionMin -= OnAffectionMin;
+        }
+        
+        // Unregister auto recording events (Phase 7.3)
+        if (autoRecording != null && useAutoRecording)
+        {
+            autoRecording.OnRecordingComplete -= OnAutoRecordingComplete;
+            autoRecording.OnSilenceTimeout -= OnAutoRecordingSilence;
+            autoRecording.OnMaxTimeExceeded -= OnAutoRecordingTooLong;
         }
     }
 
@@ -457,6 +477,122 @@ public class LoveConversationUI : MonoBehaviour
         Debug.Log("[LoveConversationUI] Episode Fail... Affection dropped to 0");
         UpdateStatus("✗ FAIL... 호감도가 바닥났다...");
         // TODO: Fail 팝업 표시 + 회귀 버튼
+    }
+    
+    #endregion
+    
+    #region Auto Recording Events (Phase 7.3)
+    
+    private void OnAutoRecordingComplete(float duration, AudioClip clip)
+    {
+        Debug.Log($"[LoveConversationUI] Auto recording complete: {duration:F1}s");
+        
+        // 분석 요청
+        if (clip != null)
+        {
+            StartCoroutine(SendAudioForAnalysis(clip));
+        }
+    }
+    
+    private void OnAutoRecordingSilence()
+    {
+        Debug.Log("[LoveConversationUI] Auto recording silence timeout (10s)");
+        
+        // 침묵 처리 - 빈 피드백 요청
+        StartCoroutine(RequestSilenceFeedback());
+    }
+    
+    private void OnAutoRecordingTooLong(float duration)
+    {
+        Debug.Log($"[LoveConversationUI] Auto recording too long: {duration:F1}s");
+        
+        // 과다 발화 처리
+        UpdateStatus("말이 너무 길어요...");
+        
+        // TODO: 특수 피드백 요청
+    }
+    
+    private IEnumerator SendAudioForAnalysis(AudioClip clip)
+    {
+        // WAV 변환
+        byte[] wavData = ConvertClipToWav(clip);
+        
+        // 서버로 전송
+        string url = $"{serverUrl}/analyze";
+        string boundary = "----Boundary" + System.DateTime.Now.Ticks;
+        
+        // Multipart form data 생성
+        var form = new WWWForm();
+        form.AddBinaryData("file", wavData, "recording.wav", "audio/wav");
+        form.AddField("session_id", currentSessionId);
+        form.AddField("device_id", deviceId);
+        
+        using (UnityWebRequest www = UnityWebRequest.Post(url, form))
+        {
+            yield return www.SendWebRequest();
+            
+            if (www.result == UnityWebRequest.Result.Success)
+            {
+                OnAnalyzeResponse(www.downloadHandler.text);
+            }
+            else
+            {
+                Debug.LogError($"[LoveConversationUI] Analysis failed: {www.error}");
+                UpdateStatus("분석 실패: " + www.error);
+            }
+        }
+        
+        // AutoRecording을 Idle로 복귀
+        if (autoRecording != null)
+        {
+            autoRecording.ReturnToIdle();
+        }
+    }
+    
+    private IEnumerator RequestSilenceFeedback()
+    {
+        // 침묵에 대한 피드백 요청
+        string url = $"{serverUrl}/feedback";
+        
+        var requestData = new FeedbackRequest
+        {
+            session_id = currentSessionId,
+            transcript = "",
+            emotion = "silence",
+            score = 0.0f,
+            audio_score = 0.0f
+        };
+        
+        string jsonData = JsonUtility.ToJson(requestData);
+        
+        using (UnityWebRequest www = new UnityWebRequest(url, "POST"))
+        {
+            byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonData);
+            www.uploadHandler = new UploadHandlerRaw(bodyRaw);
+            www.downloadHandler = new DownloadHandlerBuffer();
+            www.SetRequestHeader("Content-Type", "application/json");
+            
+            yield return www.SendWebRequest();
+            
+            if (www.result == UnityWebRequest.Result.Success)
+            {
+                try
+                {
+                    var feedback = JsonUtility.FromJson<FeedbackResponse>(www.downloadHandler.text);
+                    OnFeedbackReceived(feedback);
+                }
+                catch (System.Exception ex)
+                {
+                    Debug.LogWarning($"[LoveConversationUI] Failed to parse silence feedback: {ex.Message}");
+                }
+            }
+        }
+        
+        // AutoRecording을 Idle로 복귀
+        if (autoRecording != null)
+        {
+            autoRecording.ReturnToIdle();
+        }
     }
     
     #endregion

@@ -162,7 +162,9 @@ context = history.get_context('player_001')
     에피소드 시작 → 상황 설명 텍스트 → NPC 대화 시작 
     → 데이트 모드 ON → 자동 녹음 시작 → 유저 응답 → 평가
     ```
-- **상태**: ⏳ 계획 중
+- **설계 문서**: `PHASE_7_3_AUTO_RECORDING_DESIGN.md` ✅
+- **구현 파일**: `Assets/Scripts/AutoRecordingController.cs` ✅
+- **상태**: 🔄 구현 완료, 테스트 대기
 
 #### 7.4 클리어/실패 & 회귀 시스템
 - **목표**: 명확한 목표와 피드백 제공
