@@ -1,6 +1,14 @@
 # 진행 상황 및 다음 계획 (Episode 1 프로토타입)
 
-작성일: 2026-03-27 (업데이트)
+작성일: 2026-03-29 (업데이트)
+
+## 최신 업데이트 (2026-03-29)
+
+- **Episode UI 리팩터링**: SituationPanel 팝업을 제거하고 메인 화면에 NPC/플레이어/가이드 3개 TextMeshPro 블록을 고정 배치. `LoveConversationUI`와 `EpisodeSceneGenerator`가 동일한 구조를 사용.
+- **진행 입력 통일**: 녹음은 자동으로 유지하되, 클릭/Space 입력만으로 다음 단계로 진행하도록 상태 게이트 도입.
+- **Input System 호환**: `ENABLE_INPUT_SYSTEM` 환경에서 `UnityEngine.InputSystem`을 사용하도록 분기 처리하여 `InvalidOperationException` 제거.
+- **점수/무드 로그**: 가이드 텍스트 영역에 현재 점수와 최근 5개 무드 변화(Δ값)를 누적 표시해 플레이어 피드백 강화.
+- **서버 재시도 로직**: 에피소드 시작 HTTP 요청 실패 시 최대 3회 재시도 및 대기 메시지를 표시해 일시적인 서버 다운에도 안전하게 복구.
 
 ## 현재 진행상황 (Phase 1-6 완료)
 
@@ -174,18 +182,25 @@ context = history.get_context('player_001')
   - 대화 분석: 침묵/부정반응/부정감정 비율 계산
 - **설계 문서**: `PHASE_7_4_RESULT_POPUP_DESIGN.md` ✅
 - **구현 파일**: 
-  - `Assets/Scripts/ResultPopupController.cs` ✅
-  - `episode_manager.py` (revert_episode, analyze_dialogue) ✅
-  - `server.py` (/episode/revert, /episode/analyze) ✅
-- **상태**: ✅ 완료
+  - `Assets/Scripts/ResultPopupController.cs` 
+  - `episode_manager.py` (revert_episode, analyze_dialogue) 
+  - `server.py` (/episode/revert, /episode/analyze) 
+- **상태**: 
 
-#### 7.5 NPC TTS 시스템
-- **목표**: NPC 음성 출력으로 몰입감 강화
+#### 7.5 NPC 주도 UI & 흐름 개편 
+- **목표**: 상황 소개/대화 UI를 일원화하고 조작 난이도를 낮추기
 - **구현 내용**:
-  - NPC 대사 TTS 변환
-  - 감정별 톤/속도 조절
-  - 한국어 음성 합성 API 연동
-- **상태**: ⏳ 계획 중
+  - SituationPanel 제거, `NpcResponseText`/`PlayerTranscriptText`/`GuideText` 3분할 레이아웃 도입
+  - 클릭/Space 입력으로만 다음 상황 진행 (녹음 자동 유지)
+  - `statusText`에 현재 점수와 무드 변화 로그 출력
+  - Input System 호환 입력 처리 (`Keyboard.current`, `Mouse.current`)
+  - Episode 시작 API 재시도 및 오류 메시지 개선
+- **상태**: (2026-03-29)
+
+### Phase 7.6 NPC TTS 시스템
+- **목표**: NPC 음성 출력으로 몰입감 강화
+- **구현 내용**: TBD (한국어 TTS API 연동, 감정별 톤/속도 조절)
+- **상태**: 
 
 ---
 
@@ -318,5 +333,5 @@ python server.py
 ---
 
 저장 위치: `PROGRESS.md` (업데이트됨)
-최종 업데이트: 2026-03-27
+최종 업데이트: 2026-03-29
 담당자: Copilot

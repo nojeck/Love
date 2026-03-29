@@ -1,6 +1,9 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Networking;
+#if ENABLE_INPUT_SYSTEM
+using UnityEngine.InputSystem;
+#endif
 using TMPro;
 using System.Collections;
 using System.Collections.Generic;
@@ -8,6 +11,18 @@ using System.Collections.Generic;
 [RequireComponent(typeof(UnityMicRecorder))]
 public class LoveConversationUI : MonoBehaviour
 {
+    private enum FlowState
+    {
+        Initializing,
+        StartingEpisode,
+        ShowingSituation,
+        WaitingPlayerResponse,
+        ProcessingAudio,
+        ShowingFeedback,
+        TransitioningSituation,
+        Error
+    }
+
     [Header("Recording UI")]
     public Button startButton;
     public Button stopButton;
@@ -29,6 +44,10 @@ public class LoveConversationUI : MonoBehaviour
     
     [Header("Result Popup (Phase 7.4)")]
     public ResultPopupController resultPopup;
+    
+    [Header("Situation Panel (Phase 7.5)")]
+    public SituationPanelController situationPanel;
+    public bool useSituationPanel = false;
     
     [Header("Calibration UI")]
     public Button calibrateButton;
@@ -54,6 +73,26 @@ public class LoveConversationUI : MonoBehaviour
     private string calibrationSessionId;
     private int currentCalibrationPromptIndex = 0;
     private List<ConversationTurn> conversationHistory = new List<ConversationTurn>();
+    
+    // 에피소드/상황 관리 (Phase 7.5)
+    private int currentEpisodeId = 1;
+    private string currentSituationId = "";
+    private string currentNpcId = "suji";
+    private bool episodeStarted = false;
+    [SerializeField] private float feedbackDisplayDuration = 2.5f;
+    [SerializeField] private bool useClickOrSpaceAdvance = true;
+    private Coroutine pendingSituationTransition;
+    private GameObject responseDisplayRoot;
+    private GameObject conversationDisplayRoot;
+    private FlowState currentFlowState = FlowState.Initializing;
+    private bool isAdvancePending = false;
+    private string pendingTransitionResult;
+    [SerializeField] private int episodeStartMaxRetries = 3;
+    [SerializeField] private float episodeStartRetryDelay = 3f;
+    private bool isEpisodeStartInProgress = false;
+    private readonly List<string> scoreLogEntries = new List<string>();
+    private const int ScoreLogLimit = 5;
+    private string latestStatusMessage = "Ready";
     
     // 캘리브레이션용 표준 문장들 (다양한 발음 패턴 포함)
     private readonly string[] CALIBRATION_PROMPTS = {
@@ -85,6 +124,7 @@ public class LoveConversationUI : MonoBehaviour
     private class Inputs
     {
         public string transcript;
+        public float text_score;
     }
     
     [System.Serializable]
@@ -166,7 +206,8 @@ public class LoveConversationUI : MonoBehaviour
     {
         recorder = GetComponent<UnityMicRecorder>();
         recorder.OnServerResponse = OnAnalyzeResponse;
-        recorder.OnStatus = (s) => UpdateStatus(s);
+        recorder.OnStatus = OnRecorderStatus;
+        useSituationPanel = false;
         
         // Generate device ID
         deviceId = SystemInfo.deviceUniqueIdentifier;
@@ -176,8 +217,51 @@ public class LoveConversationUI : MonoBehaviour
         }
     }
 
+    private void PresentSituation(SituationData situation)
+    {
+        if (situation == null)
+        {
+            SetFlowError("Situation data is null", "상황 데이터가 없습니다.");
+            return;
+        }
+
+        currentSituationId = situation.situation_id;
+
+        if (!TryExtractNpcPrompt(situation, out var dialogue, out var emotion))
+        {
+            SetFlowError("Situation npc dialogue missing", "NPC 대사 데이터가 없습니다.");
+            return;
+        }
+
+        StartNpcDialogue(dialogue, emotion);
+    }
+
+    private void Update()
+    {
+        if (!useClickOrSpaceAdvance)
+            return;
+
+        if (!isAdvancePending)
+            return;
+
+        if (IsAdvanceTriggeredThisFrame())
+        {
+            TryAdvanceConversationStep();
+        }
+    }
+
     void Start()
     {
+        Transform responseDisplay = transform.Find("ResponseDisplay");
+        if (responseDisplay != null)
+            responseDisplayRoot = responseDisplay.gameObject;
+
+        Transform conversationDisplay = transform.Find("ConversationDisplay");
+        if (conversationDisplay != null)
+            conversationDisplayRoot = conversationDisplay.gameObject;
+
+        SetFlowState(FlowState.Initializing, "Startup");
+
         // Wire up buttons
         if (startButton != null) startButton.onClick.AddListener(OnStartClicked);
         if (stopButton != null) stopButton.onClick.AddListener(OnStopClicked);
@@ -228,6 +312,9 @@ public class LoveConversationUI : MonoBehaviour
         
         UpdateStatus("Ready");
         UpdateConversationDisplay();
+        
+        // 에피소드 시작 (Phase 7.5)
+        StartCoroutine(StartEpisode());
     }
 
     void OnDestroy()
@@ -250,11 +337,17 @@ public class LoveConversationUI : MonoBehaviour
             autoRecording.OnSilenceTimeout.RemoveListener(OnAutoRecordingSilence);
             autoRecording.OnMaxTimeExceeded.RemoveListener(OnAutoRecordingTooLong);
         }
+        
+        if (pendingSituationTransition != null)
+        {
+            StopCoroutine(pendingSituationTransition);
+            pendingSituationTransition = null;
+        }
     }
 
     private void OnStartClicked()
     {
-        UpdateStatus("Recording...");
+        SetTransientStatus("Recording...");
         recorder.StartRecording();
         if (startButton != null) startButton.interactable = false;
         if (stopButton != null) stopButton.interactable = true;
@@ -280,7 +373,7 @@ public class LoveConversationUI : MonoBehaviour
         else
         {
             // 일반 모드: 서버로 분석 요청
-            UpdateStatus("Processing...");
+            SetTransientStatus("Processing...");
             recorder.StopAndSend();
         }
         if (startButton != null) startButton.interactable = true;
@@ -290,69 +383,90 @@ public class LoveConversationUI : MonoBehaviour
     private void OnAnalyzeResponse(string response)
     {
         Debug.Log("LoveConversationUI: Analyze response: " + response);
-        
+        SetFlowState(FlowState.ProcessingAudio, "AnalyzeResponse");
+
+        if (!TryParseAnalyzeResponse(response, out var analyzeRes))
+        {
+            SetFlowError("Analyze response parse failed", "Server error: " + response);
+            return;
+        }
+
+        ApplyAnalyzeResponse(analyzeRes);
+        StartCoroutine(RequestNPCFeedback());
+    }
+
+    private bool TryParseAnalyzeResponse(string response, out AnalyzeResponse analyzeRes)
+    {
+        analyzeRes = null;
+
         try
         {
-            var analyzeRes = JsonUtility.FromJson<AnalyzeResponse>(response);
-            if (analyzeRes != null)
-            {
-                // Try to get transcript from inputs first (where Deepgram result is stored)
-                if (analyzeRes.inputs != null && !string.IsNullOrEmpty(analyzeRes.inputs.transcript))
-                {
-                    currentTranscript = analyzeRes.inputs.transcript;
-                    Debug.Log($"Using transcript from inputs: {currentTranscript}");
-                }
-                else
-                {
-                    currentTranscript = analyzeRes.transcript ?? "(no transcript)";
-                    Debug.Log($"Using transcript from top-level: {currentTranscript}");
-                }
-                
-                currentScore = analyzeRes.text_score;
-                if (analyzeRes.emotion != null)
-                {
-                    currentEmotion = analyzeRes.emotion.emotion;
-                }
-                
-                // Display player transcript
-                if (playerTranscriptText != null)
-                {
-                    string displayTranscript = string.IsNullOrEmpty(currentTranscript) || currentTranscript == "(no transcript)"
-                        ? "You: (silence)"
-                        : $"You: {currentTranscript}";
-                    playerTranscriptText.text = displayTranscript;
-                    Debug.Log($"PlayerTranscriptText updated: {displayTranscript}");
-                }
-                
-                // Display emotion and metrics
-                if (emotionText != null && analyzeRes.emotion != null)
-                {
-                    emotionText.text = $"Emotion: {analyzeRes.emotion.emotion}\nValence: {analyzeRes.emotion.valence:F2}\nArousal: {analyzeRes.emotion.arousal:F2}";
-                }
-                
-                // Display conversation context
-                if (contextText != null && analyzeRes.conversation_context != null)
-                {
-                    var ctx = analyzeRes.conversation_context;
-                    string repeatedStr = ctx.repeated_emotions != null && ctx.repeated_emotions.Length > 0 
-                        ? string.Join(", ", ctx.repeated_emotions) 
-                        : "None";
-                    contextText.text = $"Turns: {ctx.total_turns}\nAvg Score: {ctx.avg_score:F2}\nRepeated: {repeatedStr}\nVary Response: {ctx.should_vary_response}";
-                }
-                
-                UpdateStatus($"Analyzed: {currentEmotion} ({currentScore:F2})");
-                
-                // Automatically generate NPC feedback
-                StartCoroutine(RequestNPCFeedback());
-                return;
-            }
+            analyzeRes = JsonUtility.FromJson<AnalyzeResponse>(response);
+            return analyzeRes != null;
         }
         catch (System.Exception ex)
         {
             Debug.LogWarning("Failed to parse analyze response: " + ex.Message);
+            return false;
         }
-        
-        UpdateStatus("Server error: " + response);
+    }
+
+    private void ApplyAnalyzeResponse(AnalyzeResponse analyzeRes)
+    {
+        string transcriptFromInputs = analyzeRes.inputs != null ? analyzeRes.inputs.transcript : null;
+        string transcriptFromTopLevel = analyzeRes.transcript;
+        string normalizedTranscript = NormalizeTranscript(
+            !string.IsNullOrWhiteSpace(transcriptFromInputs) ? transcriptFromInputs : transcriptFromTopLevel
+        );
+
+        if (!string.IsNullOrEmpty(normalizedTranscript))
+        {
+            currentTranscript = normalizedTranscript;
+            Debug.Log($"Using normalized transcript: {currentTranscript}");
+        }
+        else
+        {
+            currentTranscript = "(no transcript)";
+            Debug.Log("No valid transcript found after normalization.");
+        }
+
+        float parsedScore = analyzeRes.text_score;
+        if (parsedScore <= 0f && analyzeRes.inputs != null && analyzeRes.inputs.text_score > 0f)
+        {
+            parsedScore = analyzeRes.inputs.text_score;
+            Debug.Log($"Using text_score from inputs: {parsedScore:F3}");
+        }
+        currentScore = Mathf.Clamp01(parsedScore);
+
+        if (analyzeRes.emotion != null)
+        {
+            currentEmotion = analyzeRes.emotion.emotion;
+        }
+
+        if (playerTranscriptText != null)
+        {
+            string displayTranscript = string.IsNullOrEmpty(currentTranscript) || currentTranscript == "(no transcript)"
+                ? "You: (silence)"
+                : $"You: {currentTranscript}";
+            playerTranscriptText.text = displayTranscript;
+            Debug.Log($"PlayerTranscriptText updated: {displayTranscript}");
+        }
+
+        if (emotionText != null && analyzeRes.emotion != null)
+        {
+            emotionText.text = $"Emotion: {analyzeRes.emotion.emotion}\nValence: {analyzeRes.emotion.valence:F2}\nArousal: {analyzeRes.emotion.arousal:F2}";
+        }
+
+        if (contextText != null && analyzeRes.conversation_context != null)
+        {
+            var ctx = analyzeRes.conversation_context;
+            string repeatedStr = ctx.repeated_emotions != null && ctx.repeated_emotions.Length > 0
+                ? string.Join(", ", ctx.repeated_emotions)
+                : "None";
+            contextText.text = $"Turns: {ctx.total_turns}\nAvg Score: {ctx.avg_score:F2}\nRepeated: {repeatedStr}\nVary Response: {ctx.should_vary_response}";
+        }
+
+        SetTransientStatus($"Analyzed: {currentEmotion} ({currentScore:F2})");
     }
 
     private IEnumerator RequestNPCFeedback()
@@ -360,9 +474,9 @@ public class LoveConversationUI : MonoBehaviour
         string feedbackUrl = $"{serverUrl}/feedback";
         
         // 실제 transcript가 비어있으면 "(no transcript)" 대신 빈 문자열 사용
-        string transcriptForFeedback = string.IsNullOrEmpty(currentTranscript) || currentTranscript == "(no transcript)" 
-            ? "" 
-            : currentTranscript;
+        string transcriptForFeedback = NormalizeTranscript(
+            currentTranscript == "(no transcript)" ? "" : currentTranscript
+        );
         
         // currentEmotion이 null이거나 비어있으면 기본값 설정
         string emotionForFeedback = string.IsNullOrEmpty(currentEmotion) ? "neutral" : currentEmotion;
@@ -373,7 +487,13 @@ public class LoveConversationUI : MonoBehaviour
             transcript = transcriptForFeedback,
             emotion = emotionForFeedback,
             score = currentScore,
-            audio_score = currentScore
+            audio_score = currentScore,
+            game_context = new GameContext
+            {
+                episode = currentEpisodeId,
+                situation = currentSituationId ?? "",
+                personality = "romantic"
+            }
         };
         
         Debug.Log($"RequestNPCFeedback: transcript='{transcriptForFeedback}', emotion={emotionForFeedback}, score={currentScore}");
@@ -393,33 +513,44 @@ public class LoveConversationUI : MonoBehaviour
             if (www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError)
             {
                 Debug.LogError("Feedback request failed: " + www.error);
-                UpdateStatus("Feedback error: " + www.error);
+                SetFlowError("Feedback request failed", "Feedback error: " + www.error);
             }
             else
             {
-                try
+                if (TryParseFeedbackResponse(www.downloadHandler.text, out var feedbackRes))
                 {
-                    var feedbackRes = JsonUtility.FromJson<FeedbackResponse>(www.downloadHandler.text);
                     OnFeedbackReceived(feedbackRes);
                 }
-                catch (System.Exception ex)
+                else
                 {
-                    Debug.LogWarning("Failed to parse feedback: " + ex.Message);
-                    UpdateStatus("Feedback parse error: " + ex.Message);
+                    SetFlowError("Feedback parse failed", "Feedback parse error");
                 }
             }
+        }
+    }
+
+    private bool TryParseFeedbackResponse(string response, out FeedbackResponse feedbackRes)
+    {
+        feedbackRes = null;
+
+        try
+        {
+            feedbackRes = JsonUtility.FromJson<FeedbackResponse>(response);
+            return feedbackRes != null;
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogWarning("Failed to parse feedback: " + ex.Message);
+            return false;
         }
     }
 
     private void OnFeedbackReceived(FeedbackResponse feedback)
     {
         Debug.Log($"NPC Feedback: {feedback.feedback} (Emotion: {feedback.npc_emotion}, Score Level: {feedback.score_level})");
+        SetFlowState(FlowState.ShowingFeedback, "Feedback received");
         
-        // Display NPC response
-        if (npcResponseText != null)
-        {
-            npcResponseText.text = feedback.feedback;
-        }
+        ShowNpcFeedbackText(feedback.feedback, feedback.npc_emotion ?? currentEmotion);
         
         // Update affection UI (Phase 7.2)
         if (affectionUI != null)
@@ -427,17 +558,13 @@ public class LoveConversationUI : MonoBehaviour
             StartCoroutine(affectionUI.SendAffectionUpdate(feedback.mood_change));
         }
         
-        // Add to conversation history
-        var turn = new ConversationTurn
-        {
-            playerText = currentTranscript,
-            emotion = feedback.npc_emotion ?? currentEmotion,
-            score = feedback.score,
-            npcResponse = feedback.feedback,
-            timestamp = System.DateTime.Now.ToString("HH:mm:ss")
-        };
-        conversationHistory.Add(turn);
-        
+        AppendConversationTurn(
+            currentTranscript,
+            feedback.npc_emotion ?? currentEmotion,
+            feedback.score,
+            feedback.feedback
+        );
+
         UpdateConversationDisplay();
         
         // Show score level and mood change
@@ -446,7 +573,183 @@ public class LoveConversationUI : MonoBehaviour
         {
             statusText += $" [Hint: {feedback.hint}]";
         }
-        UpdateStatus(statusText);
+        SetTransientStatus(statusText);
+        
+        // Phase 7.5: 상황 전환 체크
+        if (episodeStarted)
+        {
+            string result = GetResultFromScore(feedback.score);
+            MarkAdvancePending(result);
+        }
+
+        AddScoreLogEntry(feedback.score, feedback.mood_change);
+    }
+
+    private void MarkAdvancePending(string result)
+    {
+        pendingTransitionResult = result;
+        isAdvancePending = true;
+        SetTransientStatus("클릭 또는 Space 키로 다음 단계로 진행하세요.");
+    }
+
+    private void TryAdvanceConversationStep()
+    {
+        if (!isAdvancePending)
+            return;
+
+        if (currentFlowState != FlowState.ShowingFeedback)
+            return;
+
+        if (string.IsNullOrWhiteSpace(pendingTransitionResult))
+            return;
+
+        isAdvancePending = false;
+        BeginSituationTransition(pendingTransitionResult);
+        pendingTransitionResult = null;
+    }
+
+    private bool IsAdvanceTriggeredThisFrame()
+    {
+#if ENABLE_INPUT_SYSTEM
+        bool keyboardPressed = Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame;
+        bool mousePressed = Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame;
+        return keyboardPressed || mousePressed;
+#else
+        return Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0);
+#endif
+    }
+
+    private void BeginSituationTransition(string result)
+    {
+        if (pendingSituationTransition != null)
+        {
+            StopCoroutine(pendingSituationTransition);
+        }
+
+        SetFlowState(FlowState.TransitioningSituation, $"result={result}");
+
+        pendingSituationTransition = StartCoroutine(TransitionToNextSituation(result));
+    }
+
+    private IEnumerator TransitionToNextSituation(string result)
+    {
+        if (feedbackDisplayDuration > 0f)
+        {
+            yield return new WaitForSeconds(feedbackDisplayDuration);
+        }
+
+        yield return StartCoroutine(CheckNextSituation(result));
+        pendingSituationTransition = null;
+    }
+    
+    /// <summary>
+    /// 점수에 따른 결과 분류
+    /// </summary>
+    private string GetResultFromScore(float score)
+    {
+        if (score >= 0.7f) return "success";
+        if (score >= 0.4f) return "neutral";
+        return "fail";
+    }
+    
+    /// <summary>
+    /// 다음 상황 확인 및 전환
+    /// </summary>
+    private IEnumerator CheckNextSituation(string result)
+    {
+        string url = $"{serverUrl}/episode/situation/next";
+        
+        var requestData = new NextSituationRequest
+        {
+            player_id = currentSessionId,
+            result = result
+        };
+        
+        string jsonData = JsonUtility.ToJson(requestData);
+        
+        using (UnityWebRequest www = new UnityWebRequest(url, "POST"))
+        {
+            byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonData);
+            www.uploadHandler = new UploadHandlerRaw(bodyRaw);
+            www.downloadHandler = new DownloadHandlerBuffer();
+            www.SetRequestHeader("Content-Type", "application/json");
+            www.timeout = 5;
+            
+            yield return www.SendWebRequest();
+            
+            if (www.result == UnityWebRequest.Result.Success)
+            {
+                if (!TryParseNextSituationResponse(www.downloadHandler.text, out var response))
+                {
+                    SetFlowState(FlowState.WaitingPlayerResponse, "Next situation parse failed");
+                    yield break;
+                }
+
+                if (response.status == "ok" && response.situation != null)
+                {
+                    Debug.Log($"[LoveConversationUI] Situation changed to: {response.situation.situation_id}");
+                    PresentSituation(response.situation);
+                }
+                else
+                {
+                    SetFlowState(FlowState.WaitingPlayerResponse, "Next situation returned non-ok");
+                }
+            }
+            else
+            {
+                SetFlowState(FlowState.WaitingPlayerResponse, "Next situation request failed");
+            }
+        }
+    }
+
+    private bool TryParseNextSituationResponse(string responseJson, out NextSituationResponse response)
+    {
+        response = null;
+
+        try
+        {
+            response = JsonUtility.FromJson<NextSituationResponse>(responseJson);
+            return response != null;
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogWarning($"[LoveConversationUI] Next situation parse error: {ex.Message}");
+            return false;
+        }
+    }
+
+    private bool TryParseEpisodeStartResponse(string responseJson, out EpisodeStartResponse response)
+    {
+        response = null;
+
+        try
+        {
+            response = JsonUtility.FromJson<EpisodeStartResponse>(responseJson);
+            return response != null;
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"[LoveConversationUI] Episode start parse error: {ex.Message}");
+            return false;
+        }
+    }
+
+    private void HandleEpisodeStartSuccess(EpisodeStartResponse response)
+    {
+        if (response.status != "ok" || response.situation == null)
+        {
+            SetFlowError("Episode start returned non-ok", "에피소드 시작 실패");
+            return;
+        }
+
+        episodeStarted = true;
+
+        string title = response.episode != null ? response.episode.episode_title : "";
+        Debug.Log($"[LoveConversationUI] Episode started: {title}");
+        Debug.Log($"[LoveConversationUI] Situation: {response.situation.situation_id} - {response.situation.phase}");
+
+        PresentSituation(response.situation);
+        UpdateStatus("NPC의 말을 듣고 자동 녹음 응답 후, 클릭/Space로 다음 단계로 진행하세요.");
     }
 
     private void UpdateConversationDisplay()
@@ -485,7 +788,7 @@ public class LoveConversationUI : MonoBehaviour
     {
         // Fail... 호감도 0
         Debug.Log("[LoveConversationUI] Episode Fail... Affection dropped to 0");
-        UpdateStatus("✗ FAIL... 호감도가 바닥났다...");
+        UpdateStatus("<sprite name=\"cross_mark\"> FAIL... 호감도가 바닥났다...");
         
         // Fail 팝업 표시
         if (resultPopup != null)
@@ -515,7 +818,14 @@ public class LoveConversationUI : MonoBehaviour
     
     private void OnAutoRecordingComplete(float duration, AudioClip clip)
     {
+        if (currentFlowState != FlowState.WaitingPlayerResponse)
+        {
+            Debug.LogWarning($"[LoveConversationUI] Ignoring recording complete in state: {currentFlowState}");
+            return;
+        }
+
         Debug.Log($"[LoveConversationUI] Auto recording complete: {duration:F1}s");
+        SetFlowState(FlowState.ProcessingAudio, "Recording complete");
         
         // 분석 요청
         if (clip != null)
@@ -526,7 +836,14 @@ public class LoveConversationUI : MonoBehaviour
     
     private void OnAutoRecordingSilence()
     {
+        if (currentFlowState != FlowState.WaitingPlayerResponse)
+        {
+            Debug.LogWarning($"[LoveConversationUI] Ignoring silence timeout in state: {currentFlowState}");
+            return;
+        }
+
         Debug.Log("[LoveConversationUI] Auto recording silence timeout (10s)");
+        SetFlowState(FlowState.ProcessingAudio, "Silence timeout");
         
         // 침묵 처리 - 빈 피드백 요청
         StartCoroutine(RequestSilenceFeedback());
@@ -568,7 +885,8 @@ public class LoveConversationUI : MonoBehaviour
             else
             {
                 Debug.LogError($"[LoveConversationUI] Analysis failed: {www.error}");
-                UpdateStatus("분석 실패: " + www.error);
+                SetTransientStatus("분석 실패: " + www.error);
+                SetFlowState(FlowState.WaitingPlayerResponse, "Analysis failed, retry allowed");
             }
         }
         
@@ -614,7 +932,12 @@ public class LoveConversationUI : MonoBehaviour
                 catch (System.Exception ex)
                 {
                     Debug.LogWarning($"[LoveConversationUI] Failed to parse silence feedback: {ex.Message}");
+                    SetFlowState(FlowState.WaitingPlayerResponse, "Silence feedback parse failed");
                 }
+            }
+            else
+            {
+                SetFlowState(FlowState.WaitingPlayerResponse, "Silence feedback request failed");
             }
         }
         
@@ -629,10 +952,8 @@ public class LoveConversationUI : MonoBehaviour
 
     private void UpdateStatus(string text)
     {
-        if (statusText != null)
-            statusText.text = text;
-        else
-            Debug.Log(text);
+        latestStatusMessage = text;
+        RenderStatusPanel();
     }
 
     public void OnQueryConversationStatus()
@@ -711,7 +1032,7 @@ public class LoveConversationUI : MonoBehaviour
             {
                 Debug.LogWarning($"Calibration status check failed: {www.error}");
                 if (calibrationStatusText != null)
-                    calibrationStatusText.text = "✗ Server error";
+                    calibrationStatusText.text = "<sprite name=\"cross_mark\"> Server error";
             }
         }
     }
@@ -952,6 +1273,15 @@ public class LoveConversationUI : MonoBehaviour
         public string emotion;
         public float score;
         public float audio_score;
+        public GameContext game_context;
+    }
+    
+    [System.Serializable]
+    private class GameContext
+    {
+        public int episode;
+        public string situation;
+        public string personality;
     }
     
     [System.Serializable]
@@ -974,4 +1304,481 @@ public class LoveConversationUI : MonoBehaviour
         public string device_id;
         public int num_samples;
     }
+    
+    #region Episode & Situation (Phase 7.5)
+    
+    [System.Serializable]
+    private class EpisodeStartRequest
+    {
+        public int episode_id;
+        public string player_id;
+        public string npc_id;
+    }
+    
+    [System.Serializable]
+    private class EpisodeStartResponse
+    {
+        public string status;
+        public EpisodeData episode;
+        public SituationData situation;
+        public NpcData npc;
+        public string next_action;
+    }
+    
+    [System.Serializable]
+    private class EpisodeData
+    {
+        public int episode_id;
+        public string episode_title;
+        public string description;
+        public int target_affection;
+        public int initial_affection;
+        public int max_turns;
+    }
+    
+    [System.Serializable]
+    private class SituationData
+    {
+        public string situation_id;
+        public string phase;
+        public string situation_text;
+        public string intro_dialogue_text;
+        public NpcDialogueData npc_dialogue;
+        public ContextData context;
+    }
+    
+    [System.Serializable]
+    private class NpcDialogueData
+    {
+        public string text;
+        public string emotion;
+        public string tone;
+        public string gesture;
+        public string eye_contact;
+    }
+    
+    [System.Serializable]
+    private class ContextData
+    {
+        public string location;
+        public string location_detail;
+        public string time;
+        public string day;
+        public string weather;
+        public string npc_state;
+        public string npc_activity;
+    }
+    
+    [System.Serializable]
+    private class NpcData
+    {
+        public string npc_id;
+        public string name;
+        public string personality_type;
+    }
+    
+    [System.Serializable]
+    private class NextSituationRequest
+    {
+        public string player_id;
+        public string result;
+    }
+    
+    [System.Serializable]
+    private class NextSituationResponse
+    {
+        public string status;
+        public SituationData situation;
+        public string game_status;
+    }
+    
+    /// <summary>
+    /// 에피소드 시작
+    /// </summary>
+    private IEnumerator StartEpisode()
+    {
+        if (episodeStarted || isEpisodeStartInProgress)
+            yield break;
+
+        isEpisodeStartInProgress = true;
+        SetFlowState(FlowState.StartingEpisode, "StartEpisode");
+        
+        // 세션 ID가 없으면 생성
+        if (string.IsNullOrEmpty(currentSessionId))
+        {
+            currentSessionId = "episode_" + System.DateTime.Now.ToString("yyyyMMdd_HHmmss");
+            Debug.Log($"[LoveConversationUI] Generated session ID: {currentSessionId}");
+        }
+            
+        Debug.Log($"[LoveConversationUI] Starting episode {currentEpisodeId}...");
+        
+        string url = $"{serverUrl}/episode/start";
+        
+        var requestData = new EpisodeStartRequest
+        {
+            episode_id = currentEpisodeId,
+            player_id = currentSessionId,
+            npc_id = currentNpcId
+        };
+        
+        string jsonData = JsonUtility.ToJson(requestData);
+
+        int attempt = 0;
+        bool success = false;
+        string lastError = null;
+
+        while (attempt < Mathf.Max(1, episodeStartMaxRetries) && !success)
+        {
+            attempt++;
+            SetTransientStatus($"에피소드 시작 시도 {attempt}/{episodeStartMaxRetries}...");
+
+            using (UnityWebRequest www = new UnityWebRequest(url, "POST"))
+            {
+                byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonData);
+                www.uploadHandler = new UploadHandlerRaw(bodyRaw);
+                www.downloadHandler = new DownloadHandlerBuffer();
+                www.SetRequestHeader("Content-Type", "application/json");
+                www.timeout = 10;
+                
+                yield return www.SendWebRequest();
+                
+                if (www.result == UnityWebRequest.Result.Success)
+                {
+                    if (!TryParseEpisodeStartResponse(www.downloadHandler.text, out var response))
+                    {
+                        lastError = "응답 파싱 실패";
+                        Debug.LogError("[LoveConversationUI] Episode start parse failed");
+                    }
+                    else
+                    {
+                        HandleEpisodeStartSuccess(response);
+                        success = true;
+                        break;
+                    }
+                }
+                else
+                {
+                    lastError = www.error;
+                    Debug.LogError($"[LoveConversationUI] Episode start request failed (try {attempt}): {www.error}");
+                }
+            }
+
+            if (!success && attempt < episodeStartMaxRetries)
+            {
+                SetTransientStatus($"서버 연결 재시도 대기 중... ({episodeStartRetryDelay:F1}s)");
+                yield return new WaitForSeconds(episodeStartRetryDelay);
+            }
+        }
+
+        isEpisodeStartInProgress = false;
+
+        if (!success)
+        {
+            string status = string.IsNullOrEmpty(lastError) ? "서버 연결 실패" : $"서버 연결 실패: {lastError}";
+            SetFlowError("Episode start request failed", status);
+        }
+    }
+    
+    /// <summary>
+    /// 상황 패널 표시
+    /// </summary>
+    private void ShowSituationPanel(SituationData situation)
+    {
+        if (situationPanel == null)
+            return;
+
+        SetFlowState(FlowState.ShowingSituation, situation?.situation_id ?? "unknown");
+
+        if (npcResponseText != null)
+        {
+            npcResponseText.text = "";
+        }
+        
+        var panelData = ToSituationPanelData(situation);
+        situationPanel.ShowSituation(panelData);
+    }
+    
+    /// <summary>
+    /// 상황 패널 확인 버튼 클릭 시
+    /// </summary>
+    private void OnSituationConfirmed()
+    {
+        HandleSituationDecision("confirmed");
+    }
+    
+    /// <summary>
+    /// 상황 패널 건너뛰기 버튼 클릭 시
+    /// </summary>
+    private void OnSituationSkipped()
+    {
+        HandleSituationDecision("skipped");
+    }
+
+    private void HandleSituationDecision(string action)
+    {
+        if (currentFlowState != FlowState.ShowingSituation)
+        {
+            Debug.LogWarning($"[LoveConversationUI] Ignore situation {action} in state: {currentFlowState}");
+            return;
+        }
+
+        Debug.Log($"[LoveConversationUI] Situation {action}");
+
+        if (situationPanel == null)
+        {
+            SetFlowError("Situation panel reference missing", "상황 패널 참조가 없습니다.");
+            return;
+        }
+
+        var situation = situationPanel.GetCurrentSituation();
+        if (!TryExtractNpcPrompt(situation, out var dialogue, out var emotion))
+        {
+            SetFlowError("Current situation data missing", "상황 데이터가 비어 있습니다.");
+            return;
+        }
+
+        StartNpcDialogue(dialogue, emotion);
+    }
+
+    private SituationPanelController.SituationData ToSituationPanelData(SituationData situation)
+    {
+        return new SituationPanelController.SituationData
+        {
+            situation_id = situation.situation_id,
+            phase = situation.phase,
+            situation_text = situation.situation_text,
+            intro_dialogue_text = GetSituationIntroDialogueText(situation),
+            npc_dialogue = new SituationPanelController.NpcDialogue
+            {
+                text = situation.npc_dialogue?.text ?? "",
+                emotion = situation.npc_dialogue?.emotion ?? "neutral",
+                tone = situation.npc_dialogue?.tone ?? "",
+                gesture = situation.npc_dialogue?.gesture ?? "",
+                eye_contact = situation.npc_dialogue?.eye_contact ?? ""
+            },
+            context = new SituationPanelController.ContextData
+            {
+                location = situation.context?.location ?? "",
+                location_detail = situation.context?.location_detail ?? "",
+                time = situation.context?.time ?? "",
+                day = situation.context?.day ?? "",
+                weather = situation.context?.weather ?? "",
+                npc_state = situation.context?.npc_state ?? "",
+                npc_activity = situation.context?.npc_activity ?? ""
+            }
+        };
+    }
+
+    private string GetSituationIntroDialogueText(SituationData situation)
+    {
+        if (situation == null || string.IsNullOrWhiteSpace(situation.intro_dialogue_text))
+            return "";
+
+        return situation.intro_dialogue_text.Trim();
+    }
+
+    private bool TryExtractNpcPrompt(SituationData situation, out string dialogue, out string emotion)
+    {
+        dialogue = null;
+        emotion = null;
+
+        if (situation == null || situation.npc_dialogue == null || string.IsNullOrWhiteSpace(situation.npc_dialogue.text))
+            return false;
+
+        dialogue = situation.npc_dialogue.text;
+        emotion = string.IsNullOrWhiteSpace(situation.npc_dialogue.emotion) ? "neutral" : situation.npc_dialogue.emotion;
+        return true;
+    }
+
+    private bool TryExtractNpcPrompt(SituationPanelController.SituationData situation, out string dialogue, out string emotion)
+    {
+        dialogue = null;
+        emotion = null;
+
+        if (situation == null || situation.npc_dialogue == null || string.IsNullOrWhiteSpace(situation.npc_dialogue.text))
+            return false;
+
+        dialogue = situation.npc_dialogue.text;
+        emotion = string.IsNullOrWhiteSpace(situation.npc_dialogue.emotion) ? "neutral" : situation.npc_dialogue.emotion;
+        return true;
+    }
+    
+    /// <summary>
+    /// NPC 대화 시작 (NPC가 먼저 말을 걸음)
+    /// </summary>
+    private void StartNpcDialogue(string dialogue, string emotion)
+    {
+        Debug.Log($"[LoveConversationUI] NPC starts dialogue: {dialogue}");
+        SetFlowState(FlowState.WaitingPlayerResponse, "NPC prompt shown");
+
+        ShowNpcFeedbackText(dialogue, emotion);
+        AppendConversationTurn("", emotion, 0f, dialogue);
+
+        UpdateConversationDisplay();
+        SetTransientStatus("NPC가 말을 걸었습니다. 응답해주세요.");
+
+        BeginAutoRecordingForPlayerResponse();
+    }
+
+    private void ShowNpcFeedbackText(string dialogue, string emotion)
+    {
+        SetNpcOutputText(dialogue);
+
+        if (emotionText != null)
+        {
+            emotionText.text = emotion;
+        }
+    }
+
+    private void AppendConversationTurn(string playerText, string emotion, float score, string npcResponse)
+    {
+        var turn = new ConversationTurn
+        {
+            playerText = playerText,
+            emotion = emotion,
+            score = score,
+            npcResponse = npcResponse,
+            timestamp = System.DateTime.Now.ToString("HH:mm:ss")
+        };
+        conversationHistory.Add(turn);
+    }
+
+    private void BeginAutoRecordingForPlayerResponse()
+    {
+        isAdvancePending = false;
+        pendingTransitionResult = null;
+
+        if (autoRecording != null && useAutoRecording)
+        {
+            autoRecording.StartRecordingMode();
+        }
+    }
+
+    private string NormalizeTranscript(string raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw))
+            return "";
+
+        string trimmed = raw.Trim();
+        return trimmed == "(no transcript)" ? "" : trimmed;
+    }
+
+    private void SetNpcOutputText(string text)
+    {
+        if (npcResponseText != null)
+        {
+            npcResponseText.text = text;
+        }
+    }
+
+    private void SetSituationOverlayMode(bool showSituationPanel)
+    {
+        if (responseDisplayRoot != null)
+            responseDisplayRoot.SetActive(!showSituationPanel);
+
+        if (conversationDisplayRoot != null)
+            conversationDisplayRoot.SetActive(!showSituationPanel);
+    }
+
+    private void SetFlowState(FlowState nextState, string reason = null)
+    {
+        if (currentFlowState == nextState)
+            return;
+
+        currentFlowState = nextState;
+        ApplyStatusForFlowState(nextState);
+
+        if (string.IsNullOrEmpty(reason))
+            Debug.Log($"[LoveConversationUI] Flow state -> {nextState}");
+        else
+            Debug.Log($"[LoveConversationUI] Flow state -> {nextState} ({reason})");
+    }
+
+    private void SetFlowError(string reason, string statusMessage)
+    {
+        SetTransientStatus(statusMessage);
+        SetFlowState(FlowState.Error, reason);
+    }
+
+    private void SetTransientStatus(string message)
+    {
+        UpdateStatus(message);
+    }
+
+    private void OnRecorderStatus(string message)
+    {
+        if (currentFlowState == FlowState.WaitingPlayerResponse || currentFlowState == FlowState.ProcessingAudio)
+        {
+            SetTransientStatus(message);
+        }
+    }
+
+    private void ApplyStatusForFlowState(FlowState state)
+    {
+        string mappedStatus = GetFlowStateStatusText(state);
+        if (!string.IsNullOrEmpty(mappedStatus))
+        {
+            UpdateStatus(mappedStatus);
+        }
+    }
+
+    private string GetFlowStateStatusText(FlowState state)
+    {
+        switch (state)
+        {
+            case FlowState.ShowingSituation:
+                return "상황 준비 중...";
+            case FlowState.WaitingPlayerResponse:
+                return "자동 녹음 중입니다. 응답을 말해주세요.";
+            case FlowState.ProcessingAudio:
+                return "응답 분석 중...";
+            case FlowState.ShowingFeedback:
+                return isAdvancePending
+                    ? "클릭 또는 Space 키로 다음 단계로 진행하세요."
+                    : "NPC 응답 표시 중...";
+            case FlowState.TransitioningSituation:
+                return "다음 상황 준비 중...";
+            default:
+                return null;
+        }
+    }
+
+    private void RenderStatusPanel()
+    {
+        if (statusText == null)
+        {
+            Debug.Log(latestStatusMessage);
+            return;
+        }
+
+        System.Text.StringBuilder builder = new System.Text.StringBuilder();
+        builder.AppendLine(latestStatusMessage);
+        builder.AppendLine($"현재 점수: {currentScore:F2}");
+
+        if (scoreLogEntries.Count > 0)
+        {
+            builder.AppendLine("최근 변화:");
+            for (int i = 0; i < scoreLogEntries.Count; i++)
+            {
+                builder.AppendLine(scoreLogEntries[i]);
+            }
+        }
+
+        statusText.text = builder.ToString().TrimEnd();
+    }
+
+    private void AddScoreLogEntry(float score, float moodChange)
+    {
+        string entry = $" - {System.DateTime.Now:HH:mm:ss} 점수 {score:F2} (Δ{moodChange:+0.00;-0.00;0.00})";
+        scoreLogEntries.Insert(0, entry);
+
+        if (scoreLogEntries.Count > ScoreLogLimit)
+        {
+            scoreLogEntries.RemoveAt(scoreLogEntries.Count - 1);
+        }
+
+        RenderStatusPanel();
+    }
+    
+    #endregion
 }

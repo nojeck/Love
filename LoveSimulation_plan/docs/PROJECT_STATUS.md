@@ -1,7 +1,14 @@
 # 무한 회귀 연애 (LoveSimulation) - 프로젝트 현황 및 계획
 
-**최종 업데이트:** 2026-03-27  
-**프로젝트 상태:** Phase 1-7 완료 (Phase 7.5 계획 중)
+**최종 업데이트:** 2026-03-29  
+**프로젝트 상태:** Phase 1-7 완료 (Phase 7.6 계획 중)
+
+### 2026-03-29 주요 변경 사항
+- `LoveConversationUI` 전면 리팩터링: SituationPanel 제거, 메인 화면 3텍스트(NPC/플레이어/가이드) 고정.
+- 클릭/Space 입력으로만 다음 단계 진행 (녹음은 자동 유지).
+- `statusText`에 현재 점수와 최근 5개의 무드 변화 로그 표시.
+- `ENABLE_INPUT_SYSTEM` 환경에서 Unity Input System API를 사용하도록 입력 처리 분기.
+- Episode 시작 HTTP 요청에 재시도(기본 3회) 및 대기 메시지 도입.
 
 ---
 
@@ -240,7 +247,7 @@ context = history.get_context('player_001')
 | **총 응답 시간** | **~100ms** | 규칙만 사용 시 |
 
 ### Phase 7: 게임플레이 몰입 시스템 ✅
-**상태:** 완료 (2026-03-27)
+**상태:** 완료 (2026-03-29)
 
 #### Phase 7.1: NPC 주도 대화 시스템 ✅
 - 에피소드별 상황 설정 텍스트 출력
@@ -256,7 +263,7 @@ context = history.get_context('player_001')
 
 ---
 
-#### Phase 7.2: 호감도 UI 시스템 ✅
+#### Phase 7.2: 호감도 UI 시스템 
 **상태:** 완료 (2026-03-27)
 
 **구현 내용:**
@@ -507,7 +514,8 @@ Gemini Flash → DeepSeek Chat: 80% 절감
 | **Phase 7.2 호감도 UI** | ✅ | 완료 |
 | **Phase 7.3 타임 리미트** | ✅ | 완료 |
 | **Phase 7.4 클리어/실패** | ✅ | 완료 |
-| **Phase 7.5 NPC TTS** | ⏳ | 계획 중 |
+| **Phase 7.5 NPC 주도 UI & 흐름** | ✅ | SituationPanel 제거, 고정 3텍스트 UI, 입력/로그 개선 |
+| **Phase 7.6 NPC TTS** | ⏳ | 계획 중 |
 | 플레이테스트 | ⏳ | 다음 단계 |
 | 게임 연출 | ⏳ | Unity 통합 필요 |
 
@@ -530,6 +538,6 @@ Gemini Flash → DeepSeek Chat: 80% 절감
 
 ---
 
-**프로젝트 상태:** 개발 진행 중 (Phase 1-7 완료, Phase 7.5 계획 중)  
-**마지막 업데이트:** 2026-03-27  
+**프로젝트 상태:** 개발 진행 중 (Phase 1-7 완료, Phase 7.6 계획 중)  
+**마지막 업데이트:** 2026-03-29  
 **담당자:** Copilot
